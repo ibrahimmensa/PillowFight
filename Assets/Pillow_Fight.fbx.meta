@@ -1,0 +1,342 @@
+fileFormatVersion: 2
+guid: 7eaa199073b50ab4ea73bab1823a2d1c
+ModelImporter:
+  serializedVersion: 19301
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black_matte.002
+    second: {fileID: 2100000, guid: 7ec318286b07fe140a3909d3b82702a2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black_matte.003
+    second: {fileID: 2100000, guid: 8813dd7954617944aa48d9a34fc1c8fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brown lacquered wood watch
+    second: {fileID: 2100000, guid: 8e15e747874c0004d8a76020ac46d93e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bulb_LP.001_BAKED
+    second: {fileID: 2100000, guid: eff2962b13ccc2541a10d9ae422fb6a6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cable_LP.001_BAKED
+    second: {fileID: 2100000, guid: 8d8f1ae55af55ea4d94fb15aa80fd771, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Carpet
+    second: {fileID: 2100000, guid: 416406e46bcdf1543a3730a70ca54ee0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cover book-02
+    second: {fileID: 2100000, guid: 84a7bd6bf8902dc4a9467534a521c8a8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cover book-03
+    second: {fileID: 2100000, guid: 5fb87e3ecb79d3742a82fbb09598ba1c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dice - Black
+    second: {fileID: 2100000, guid: 7e934d996c2218b4b87e35db8f6b65bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dice - White
+    second: {fileID: 2100000, guid: d805bc32250fda14b963e46b18bd40fb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Door
+    second: {fileID: 2100000, guid: 2f464f60bfa6fdf4ea4a2eccbad0638b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fine Gold.001
+    second: {fileID: 2100000, guid: e45f901219a9562478eaf201698ae5c7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Image.002
+    second: {fileID: 2100000, guid: 6b6d7ec6e44a6ee48bcc889a7ac00ce9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Image.003
+    second: {fileID: 2100000, guid: e8398174bdc0a4c42982b97242165e24, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp_Inside_L.001_BAKED
+    second: {fileID: 2100000, guid: 89f7d83fda20acc499ad9bbe99b6cc9b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp_LP.002_BAKED.002
+    second: {fileID: 2100000, guid: 46272512081f5ef43807020a7841d97a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp_Stand_LP.001_BAKED
+    second: {fileID: 2100000, guid: 84e172c0ee36d0e42942bd8b4508353c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Lamp_Stand_P_LP.001_BAKED
+    second: {fileID: 2100000, guid: fc3ce0897df313945a1ac79d0291e5aa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Bean_Bag
+    second: {fileID: 2100000, guid: 8bed6f3cc4db44d48ac250de000fde7d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Bed
+    second: {fileID: 2100000, guid: 817dac1f05f7e184791d8512f887fbd5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Book_Shelf
+    second: {fileID: 2100000, guid: d3081785c86d81b46bc560b1f27758af, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Chair
+    second: {fileID: 2100000, guid: 739ff320ea88fe24fb3fe4fe51c89e96, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Doll_House
+    second: {fileID: 2100000, guid: 0bde860a54306524ab650ea4764dc623, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Shelves
+    second: {fileID: 2100000, guid: d3b923b546b51ce45be02445d44adf74, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Sofa
+    second: {fileID: 2100000, guid: 82110090eaeefd246a2128995b7946cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Table
+    second: {fileID: 2100000, guid: 936dba47b3318244eb304e6fa148eeaf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: 5854421c27b409847b270607f7334c36, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: NutsBolts_LP.001_BAKED
+    second: {fileID: 2100000, guid: 46157452dbded3b4eab9e1855e5c6d77, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Pillow
+    second: {fileID: 2100000, guid: c76429c2e1177cc4dad279d3a289672b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plastic_LP.001_BAKED
+    second: {fileID: 2100000, guid: 2f5c0ecb1f0d8be44bd56717e81998be, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Room.002
+    second: {fileID: 2100000, guid: 7e3229b92ec96a64fb4b4e01f72efe7e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Soccer_New
+    second: {fileID: 2100000, guid: 70bc38f7029b2414592c6ed40e62c540, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Velvet Grey.001
+    second: {fileID: 2100000, guid: e4c3fd244fc60dd4499a04de52a5580a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Window
+    second: {fileID: 2100000, guid: 855511cf89a1baf418c903b4e0ca1df9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wood_LP.001_BAKED
+    second: {fileID: 2100000, guid: d7d79902ef1cdd743bfc55dc21c2d1c0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bb_1
+    second: {fileID: 2100000, guid: d0669ca3de910414193d2de341d45920, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bb_2
+    second: {fileID: 2100000, guid: 7369dd59e2b3f36418f24ee4c3be4cc0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bb_3
+    second: {fileID: 2100000, guid: c37ddeb4e34d326459514a7450ef39e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bb_grey and brown soil
+    second: {fileID: 2100000, guid: f099ed53864a8f44593f0fe224c9d239, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bb_plastic touched
+    second: {fileID: 2100000, guid: 6a276155a98b1de468768a53b72d354b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black plastic watch
+    second: {fileID: 2100000, guid: dfd2d3c59e31d9b41b220644f29283d2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: book cover.003
+    second: {fileID: 2100000, guid: f8474f374cfc8c646993e006156868c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: book cover.004
+    second: {fileID: 2100000, guid: 8dbda76b9851d68498a6f5bc1e1fc7ef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: brown wood watch
+    second: {fileID: 2100000, guid: bfb7472f9464dbf45a0546e18ba43b38, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: light wood watch
+    second: {fileID: 2100000, guid: 4ff0670a0fb7cba439eacd35d9ad9680, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal watch
+    second: {fileID: 2100000, guid: dc6df5614f22ae0419554adf966f2653, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: paper
+    second: {fileID: 2100000, guid: 36de937f2c9747a47ba5aab8f8eddc1e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: stacked paper.003
+    second: {fileID: 2100000, guid: 1aee2baa34a647047aacace6c736cdd1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: stacked paper.004
+    second: {fileID: 2100000, guid: ff8105ab4a023ad4cbbadafc976b6a38, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 2
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 1
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
