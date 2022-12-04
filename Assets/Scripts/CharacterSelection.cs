@@ -11,14 +11,14 @@ public class CharacterSelection : MonoBehaviour
 
     public void NextCharacter()
     {
-        FindObjectOfType<AudioManager>().Play("click");
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         characters[selectedcharacter].SetActive(false);
         selectedcharacter = (selectedcharacter + 1) % characters.Length;
         characters[selectedcharacter].SetActive(true);
     }
     public void previousCharacter()
     {
-        FindObjectOfType<AudioManager>().Play("click");
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         characters[selectedcharacter].SetActive(false);
         selectedcharacter--;
         if(selectedcharacter<0)
@@ -29,7 +29,7 @@ public class CharacterSelection : MonoBehaviour
     }
     public void StartGame()
     {
-        FindObjectOfType<AudioManager>().Play("click");
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         PlayerPrefs.SetInt("selectedcharacter", selectedcharacter);
         
     }

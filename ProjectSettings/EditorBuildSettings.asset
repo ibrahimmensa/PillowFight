@@ -6,13 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 1
-    path: Assets/Scenes/LoadingScreen.unity
+    path: Assets/Scenes/SplashScreen.unity
     guid: 830e552e76d91eb4188ce9f20a0dabc4
   - enabled: 1
     path: Assets/Scenes/MenuScreen.unity
@@ -20,10 +14,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Environment.unity
     guid: 294b5b8b4e15f8546bd891189d5912a8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LoadingScreen 1.unity
     guid: 88144b624b8e23145b75757522af9ba6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/New Scene.unity
     guid: b1764ea9f6e06d94ba46a58aae9d88df
   m_configObjects:

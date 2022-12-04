@@ -56,7 +56,7 @@ public class Playmove : MonoBehaviour
                 Run();
             }
 
-            else if (moveDirection == Vector3.zero);
+            else if (moveDirection == Vector3.zero)
             {
                 Idle();
             }

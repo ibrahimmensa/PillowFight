@@ -4,22 +4,57 @@ using UnityEngine.Audio;
 using UnityEngine;
 using System;
 
-public class AudioManager : MonoBehaviour
+public enum SoundEffect
 {
-    public Sound[] sounds;
-    private void Awake()
+    BUTTONCLICK,
+    PLAYERRELATED
+}
+
+public class AudioManager : Singleton<AudioManager>
+{
+    public AudioSource BGMusic;
+    public AudioSource sfx;
+
+    public AudioClip[] sfxAudios;
+
+
+    private void Start()
     {
-        foreach(Sound s in sounds)
+        if (PlayerPrefs.GetInt("BGMusic", 0) == 0)//0 means ON, 1 means OFF
         {
-            s.source=gameObject.AddComponent<AudioSource>();
-            s.source.clip = s.clip;
-            s.source.volume = s.volume;
-            s.source.pitch = s.pitch;
+            UIManager.Instance.BGMusicToogleOn.SetActive(true);
+            UIManager.Instance.BGMusicToogleOff.SetActive(false);
+            BGMusic.enabled = true;
+            BGMusic.Play();
+        }
+        else
+        {
+            UIManager.Instance.BGMusicToogleOn.SetActive(false);
+            UIManager.Instance.BGMusicToogleOff.SetActive(true);
+            BGMusic.Stop();
+            BGMusic.enabled = false;
+        }
+
+        if (PlayerPrefs.GetInt("SFX", 0) == 0)//0 means ON, 1 means OFF
+        {
+            UIManager.Instance.SfxToogleOn.SetActive(true);
+            UIManager.Instance.SfxToogleOff.SetActive(false);
+        }
+        else
+        {
+            UIManager.Instance.SfxToogleOn.SetActive(false);
+            UIManager.Instance.SfxToogleOff.SetActive(true);
         }
     }
-    public void Play(string name)
+
+    public void Play(SoundEffect s)
     {
-        Sound s = Array.Find(sounds, sound => sound.name == name);
-        s.source.Play();
+        if (PlayerPrefs.GetInt("SFX", 0) == 0)//0 means ON, 1 means OFF
+        {
+            if (s == SoundEffect.BUTTONCLICK)
+            {
+                sfx.PlayOneShot(sfxAudios[0]);
+            }
+        }
     }
 }
