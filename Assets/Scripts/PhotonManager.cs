@@ -16,6 +16,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public static PhotonManager instance;
     public PhotonView pv;
+    public GameObject _playerObj;
     public bool isPhotonConnected = false;
 
     char[] characters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
@@ -71,28 +72,62 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public void CreatePrivateRoom()
     {
-        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4 , IsVisible=false};
-        PhotonNetwork.CreateRoom(privateGameCode, newRoom);
+        if (isPhotonConnected)
+        {
+            AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+            RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = false };
+            PhotonNetwork.CreateRoom(privateGameCode, newRoom);
+            UIManager.Instance.LoadingScreen.SetActive(true);
+        }
+        else
+        {
+            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+        }
     }
+
     public void JoinPrivateRoom()
     {
-        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        if (UIManager.Instance.privateRoomCodeInputField.text!="")
-            PhotonNetwork.JoinRoom(UIManager.Instance.privateRoomCodeInputField.text);
+        if (isPhotonConnected)
+        {
+            AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+            if (UIManager.Instance.privateRoomCodeInputField.text != "")
+            {
+                PhotonNetwork.JoinRoom(UIManager.Instance.privateRoomCodeInputField.text);
+                UIManager.Instance.LoadingScreen.SetActive(true);
+            }
+        }
+        else
+        {
+            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+        }
     }
 
     public void CreatePublicRoom()
     {
-        Debug.Log("public room created");
-        RoomOptions newRoom=new RoomOptions (){MaxPlayers=4, IsVisible = true };
-        PhotonNetwork.CreateRoom(null, newRoom, TypedLobby.Default);
+        if (isPhotonConnected)
+        {
+            Debug.Log("public room created");
+            RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = true };
+            PhotonNetwork.CreateRoom(null, newRoom, TypedLobby.Default);
+        }
+        else
+        {
+            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+        }
     }
 
     public void JoinPublicRoom()
     {
-        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PhotonNetwork.JoinRandomRoom();
+        if (isPhotonConnected)
+        {
+            AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+            PhotonNetwork.JoinRandomRoom();
+            UIManager.Instance.LoadingScreen.SetActive(true);
+        }
+        else
+        {
+            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+        }
     }
 
 
@@ -113,6 +148,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN");
         isPhotonConnected = true;
         PhotonNetwork.JoinLobby();
+        UIManager.Instance.LoadingScreen.SetActive(false);
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -167,11 +203,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         base.OnJoinedRoom();
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
         gameState = "InLobby";
+        UIManager.Instance.LoadingScreen.SetActive(false);
         UIManager.Instance.LobbyScreen.SetActive(true);
         if (PhotonNetwork.IsMasterClient)
         {
-            playersNameList.Add(PhotonNetwork.NickName.Remove(PhotonNetwork.NickName.Length - 5));
-            UIManager.Instance.lobbyPlayersNames[0].text = playersNameList[0];
+            playersNameList.Add(PhotonNetwork.NickName);
+            UIManager.Instance.lobbyPlayersNames[0].text = playersNameList[0].Remove(playersNameList[0].Length - 5);
         }
         //if (PhotonNetwork.IsMasterClient)
         //{
@@ -190,6 +227,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         base.OnJoinRoomFailed(returnCode, message);
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinRoomFailed() called by PUN. Now this client is in a room."+returnCode+message);
+        if (returnCode == 32758)
+        {
+            UIManager.Instance.JoinPrivateRoomFailedPanel.SetActive(true);
+        }
+        UIManager.Instance.LoadingScreen.SetActive(false);
     }
 
     public override void OnLeftRoom()
@@ -206,13 +248,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         UIManager.Instance.PrivateRoomScreen.SetActive(false);
         UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
         UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
+        UIManager.Instance.LoadingScreen.SetActive(true);
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
         Debug.LogFormat("OnPlayerEnteredRoom() {0}", newPlayer.NickName);
-        playersNameList.Add(newPlayer.NickName.Remove(newPlayer.NickName.Length - 5));
+        playersNameList.Add(newPlayer.NickName);
         if (PhotonNetwork.IsMasterClient)
         {
             pv.RPC("PlayerListInLobbySync", RpcTarget.All, playersNameList.ToArray());
@@ -227,7 +270,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         base.OnPlayerLeftRoom(otherPlayer);
         Debug.LogFormat("OnPlayerLeftRoom() {0}", otherPlayer.NickName);
-        playersNameList.Remove(otherPlayer.NickName.Remove(otherPlayer.NickName.Length - 5));
+        playersNameList.Remove(otherPlayer.NickName);
         if (PhotonNetwork.IsMasterClient)
         {
             pv.RPC("PlayerListInLobbySync", RpcTarget.All, playersNameList.ToArray());
@@ -254,7 +297,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
         for (int i = 0; i < playersNameList.Count; i++)
         {
-            UIManager.Instance.lobbyPlayersNames[i].text = playersNameList[i];
+            UIManager.Instance.lobbyPlayersNames[i].text = playersNameList[i].Remove(playersNameList[i].Length - 5);
         }
     }
 
@@ -269,7 +312,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
         for (int i = 0; i < playersNameList.Count; i++)
         {
-            UIManager.Instance.lobbyPlayersNames[i].text = playersNameList[i];
+            UIManager.Instance.lobbyPlayersNames[i].text = playersNameList[i].Remove(playersNameList[i].Length - 5);
         }
     }
 

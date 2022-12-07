@@ -57,4 +57,12 @@ public class AudioManager : Singleton<AudioManager>
             }
         }
     }
+
+    public void PlayButtonClickSfx()
+    {
+        if (PlayerPrefs.GetInt("SFX", 0) == 0)//0 means ON, 1 means OFF
+        {
+            sfx.PlayOneShot(sfxAudios[0]);
+        }
+    }
 }

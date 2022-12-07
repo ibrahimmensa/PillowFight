@@ -24,6 +24,7 @@ public class UIManager : Singleton<UIManager>
 
     public TMP_InputField playerNameText;
 
+    public GameObject MainScreen;
     public GameObject SettingsScreen;
     public GameObject ProfileScreen;
     public GameObject LeaderBoardScreen;
@@ -36,6 +37,10 @@ public class UIManager : Singleton<UIManager>
     public GameObject CreatePrivateRoomScreen;
     public GameObject JoinPrivateRoomScreen;
     public GameObject LobbyScreen;
+    public GameObject JoinPrivateRoomFailedPanel;
+    public GameObject InternetConnectionErrorPanel;
+    public GameObject LoadingScreen;
+    public GameObject GameUI;
     public TMP_Text[] lobbyPlayersNames;
 
     public GameObject BGMusicToogleOn;
@@ -45,6 +50,8 @@ public class UIManager : Singleton<UIManager>
 
     public TMP_Text privateRoomCodeText;
     public TMP_InputField privateRoomCodeInputField;
+
+    public TMP_Text DebugText;
 
     public void PanelFadeIn(CanvasGroup canvasGroup, RectTransform recttransform)
     {
@@ -241,10 +248,17 @@ public class UIManager : Singleton<UIManager>
 
     public void onClickCreatePrivateRoom()
     {
-        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        CreatePrivateRoomScreen.SetActive(true);
-        PhotonManager.instance.RandomRoomCode();
-        privateRoomCodeText.text = PhotonManager.instance.privateGameCode;
+        if (PhotonManager.instance.isPhotonConnected)
+        {
+            AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+            CreatePrivateRoomScreen.SetActive(true);
+            PhotonManager.instance.RandomRoomCode();
+            privateRoomCodeText.text = PhotonManager.instance.privateGameCode;
+        }
+        else
+        {
+            InternetConnectionErrorPanel.SetActive(true);
+        }
     }
 
     public void onClickCloseCreatePrivateRoom(TMP_Text buttonText)
