@@ -231,6 +231,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             UIManager.Instance.JoinPrivateRoomFailedPanel.SetActive(true);
         }
+        if (returnCode == 32765)
+        {
+            UIManager.Instance.JoinPrivateRoomFullPanel.SetActive(true);
+        }
         UIManager.Instance.LoadingScreen.SetActive(false);
     }
 

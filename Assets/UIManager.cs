@@ -38,6 +38,7 @@ public class UIManager : Singleton<UIManager>
     public GameObject JoinPrivateRoomScreen;
     public GameObject LobbyScreen;
     public GameObject JoinPrivateRoomFailedPanel;
+    public GameObject JoinPrivateRoomFullPanel;
     public GameObject InternetConnectionErrorPanel;
     public GameObject LoadingScreen;
     public GameObject GameUI;

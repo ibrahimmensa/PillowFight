@@ -19,8 +19,13 @@ public class FirebaseManager : MonoBehaviour
 
     [Header("UserData")]
     public TMP_InputField usernameField;
-    public TMP_InputField xpField;
-    public TMP_InputField killsField;
+    public TMP_Text coinsField;
+    public TMP_Text diamondsField;
+    public TMP_Text pillowsField;
+    public TMP_Text totalWonGameCountField;
+    public TMP_Text winRateField;
+    public TMP_Text multiplayerCountField;
+    public TMP_Text killCountField;
     public GameObject scoreElement;
     public Transform leaderboardContent;
 
@@ -34,6 +39,7 @@ public class FirebaseManager : MonoBehaviour
 
         PlayGamesPlatform.InitializeInstance(config);
         PlayGamesPlatform.Activate();
+        PlayGamesSignIn();
     }
 
     public void PlayGamesSignIn()
@@ -54,9 +60,8 @@ public class FirebaseManager : MonoBehaviour
 
     void PlayGamesAuthentication(string authCode)
     {
-        auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
-        Firebase.Auth.Credential credential =
-            Firebase.Auth.PlayGamesAuthProvider.GetCredential(authCode);
+        auth = FirebaseAuth.DefaultInstance;
+        Credential credential = PlayGamesAuthProvider.GetCredential(authCode);
         auth.SignInWithCredentialAsync(credential).ContinueWith(task => {
             if (task.IsCanceled)
             {
@@ -76,20 +81,35 @@ public class FirebaseManager : MonoBehaviour
                 User.DisplayName, User.UserId); 
             UIManager.Instance.DebugText.text = UIManager.Instance.DebugText.text + "User signed in successfully: { 0} ({ 1})  "+
                 User.DisplayName+ "   "+ User.UserId;
+
+            StartCoroutine(LoadUserData());
+            onClickLeaderboardButton();
+
         });
     }
 
-    public void SaveDataToFirebase()
+    public void SaveDataToFirebase(string userName,int coins, int diamonds, int pillows, int totalGameWon, int winRate, int multiplayerGame, int killCount)
     {
         Debug.Log("on save button click");
-        StartCoroutine(UpdateUsernameAuth(usernameField.text));
-        StartCoroutine(UpdateUsernameDatabase(usernameField.text));
+        StartCoroutine(UpdateUsernameAuth(userName));
+        StartCoroutine(UpdateUsernameDatabase(userName));
+        StartCoroutine(UpdateCoins(coins));
+        StartCoroutine(UpdateDiamonds(diamonds));
+        StartCoroutine(UpdatePillows(pillows));
+        StartCoroutine(UpdateTotalGameWon(totalGameWon));
+        StartCoroutine(UpdateWinRate(winRate));
+        StartCoroutine(UpdateMultiplayerGames(multiplayerGame));
+        StartCoroutine(UpdateKills(killCount));
 
-        StartCoroutine(UpdateXp(int.Parse(xpField.text)));
-        StartCoroutine(UpdateKills(int.Parse(killsField.text)));
+        Invoke("LoadDataAfterDelay", 5f);
     }
 
-    public void ScoreboardButton()
+    void LoadDataAfterDelay()
+    {
+        StartCoroutine(LoadUserData());
+    }
+
+    public void onClickLeaderboardButton()
     {
         Debug.Log("on leaderboard button click");
         StartCoroutine(LoadScoreboardData());
@@ -133,10 +153,10 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator UpdateXp(int _xp)
+    private IEnumerator UpdateCoins(int _coins)
     {
         //Set the currently logged in user xp
-        var DBTask = dbreference.Child("users").Child(User.UserId).Child("xp").SetValueAsync(_xp);
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("coins").SetValueAsync(_coins);
 
         yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
 
@@ -146,7 +166,92 @@ public class FirebaseManager : MonoBehaviour
         }
         else
         {
-            //Xp is now updated
+            //coins is now updated
+        }
+    }
+
+    private IEnumerator UpdateDiamonds(int _diamonds)
+    {
+        //Set the currently logged in user xp
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("diamonds").SetValueAsync(_diamonds);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //diamonds is now updated
+        }
+    }
+
+    private IEnumerator UpdatePillows(int _pillows)
+    {
+        //Set the currently logged in user xp
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("pillows").SetValueAsync(_pillows);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //pillows is now updated
+        }
+    }
+
+    private IEnumerator UpdateTotalGameWon(int _totalGameWon)
+    {
+        //Set the currently logged in user xp
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("totalGameWon").SetValueAsync(_totalGameWon);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //totalGameWon is now updated
+        }
+    }
+
+    private IEnumerator UpdateWinRate(int _winRate)
+    {
+        //Set the currently logged in user xp
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("winRate").SetValueAsync(_winRate);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //winRate is now updated
+        }
+    }
+
+    private IEnumerator UpdateMultiplayerGames(int _multiplayerGames)
+    {
+        //Set the currently logged in user xp
+        var DBTask = dbreference.Child("users").Child(User.UserId).Child("multiplayerGames").SetValueAsync(_multiplayerGames);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            Debug.LogWarning(message: $"Failed to register task with {DBTask.Exception}");
+        }
+        else
+        {
+            //multiplayerGames is now updated
         }
     }
 
@@ -167,7 +272,7 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadUserData()
+    IEnumerator LoadUserData()
     {
         //Get the currently logged in user data
         var DBTask = dbreference.Child("users").Child(User.UserId).GetValueAsync();
@@ -181,16 +286,26 @@ public class FirebaseManager : MonoBehaviour
         else if (DBTask.Result.Value == null)
         {
             //No data exists yet
-            xpField.text = "0";
-            killsField.text = "0";
+            coinsField.text = "0";
+            diamondsField.text = "0";
+            pillowsField.text = "0";
+            totalWonGameCountField.text = "0";
+            winRateField.text = "0";
+            multiplayerCountField.text = "0";
+            killCountField.text = "0";
         }
         else
         {
             //Data has been retrieved
             DataSnapshot snapshot = DBTask.Result;
 
-            xpField.text = snapshot.Child("xp").Value.ToString();
-            killsField.text = snapshot.Child("kills").Value.ToString();
+            coinsField.text = snapshot.Child("coins").Value.ToString();
+            diamondsField.text = snapshot.Child("diamonds").Value.ToString();
+            pillowsField.text = snapshot.Child("pillows").Value.ToString();
+            totalWonGameCountField.text = snapshot.Child("totalGameWon").Value.ToString();
+            winRateField.text = snapshot.Child("winRate").Value.ToString();
+            multiplayerCountField.text = snapshot.Child("multiplayerGames").Value.ToString();
+            killCountField.text = snapshot.Child("kills").Value.ToString();
 
         }
     }
@@ -217,17 +332,18 @@ public class FirebaseManager : MonoBehaviour
                 Destroy(child.gameObject);
             }
 
+            int i = 0;
+
             //Loop through every users UID
             foreach (DataSnapshot childSnapshot in snapshot.Children.Reverse<DataSnapshot>())
             {
                 string username = childSnapshot.Child("username").Value.ToString();
-                int kills = int.Parse(childSnapshot.Child("kills").Value.ToString());
-
-                int xp = int.Parse(childSnapshot.Child("xp").Value.ToString());
-
+                int coins = int.Parse(childSnapshot.Child("coins").Value.ToString());
+                int diamonds = int.Parse(childSnapshot.Child("diamonds").Value.ToString());
+                i++;
                 //Instantiate new scoreboard elements
                 GameObject scoreboardElement = Instantiate(scoreElement, leaderboardContent);
-                scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username, kills, xp);
+                scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username,i, coins, diamonds);
             }
 
             //Go to scoareboard screen

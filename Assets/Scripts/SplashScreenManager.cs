@@ -27,7 +27,7 @@ public class SplashScreenManager : MonoBehaviourPunCallbacks
         while (loadingBar.value < 9)
         {
             loadingBar.value = loadingBar.value + 0.1f;
-            yield return new WaitForSeconds(0.00025f);
+            yield return new WaitForSeconds(0.00005f);
         }
         StartCoroutine(LoadScene());
     }
