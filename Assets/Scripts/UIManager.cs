@@ -42,7 +42,12 @@ public class UIManager : Singleton<UIManager>
     public GameObject InternetConnectionErrorPanel;
     public GameObject LoadingScreen;
     public GameObject GameUI;
+    public GameObject JoyStick;
     public TMP_Text[] lobbyPlayersNames;
+    public TMP_Text lobbyTimer;
+    public GameObject QuitConfirmationPopup;
+    public GameObject VictoryPopup;
+    public GameObject DiePopup;
 
     public GameObject BGMusicToogleOn;
     public GameObject BGMusicToogleOff;
@@ -145,6 +150,7 @@ public class UIManager : Singleton<UIManager>
 
     public void OnClickLeaderBoardButton()
     {
+        FirebaseManager.Instance.onClickLeaderboardButton();
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         PanelFadeIn(LeaderBoardScreen.GetComponent<CanvasGroup>(), LeaderBoardScreen.GetComponent<RectTransform>());
         LeaderBoardScreen.SetActive(true);
@@ -295,6 +301,7 @@ public class UIManager : Singleton<UIManager>
         privateRoomCodeInputField.text = "";
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         PhotonNetwork.LeaveRoom();
+        PhotonNetwork.LeaveLobby();
     }
 
     public void onClickBGMusicToogle(bool toogle)
@@ -325,5 +332,28 @@ public class UIManager : Singleton<UIManager>
             PlayerPrefs.SetInt("SFX", 1);
         }
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+    }
+
+    public void onClickAttack()
+    {
+        PhotonManager.instance._playerObj.GetComponent<PlayerController>().attack();
+    }
+
+    public void onClickQuitGame()
+    {
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+        QuitConfirmationPopup.SetActive(true);
+    }
+
+    public void onClickYesQuit()
+    {
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.LeaveLobby();
+    }
+    public void onClickNoQuit()
+    {
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+        QuitConfirmationPopup.SetActive(false);
     }
 }

@@ -998,7 +998,7 @@ RectTransform:
   m_GameObject: {fileID: 5891539218314775607}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.02, y: 0.02, z: 0.02}
+  m_LocalScale: {x: -0.02, y: 0.02, z: 0.02}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5891539217094738593}
@@ -1084,7 +1084,7 @@ GameObject:
   - component: {fileID: 5891539218581040461}
   - component: {fileID: 5891539218581728359}
   - component: {fileID: 5891539218673028197}
-  - component: {fileID: 5401074492577472521}
+  - component: {fileID: 3154612912742240213}
   m_Layer: 0
   m_Name: Pilllow_2
   m_TagString: Pillow
@@ -1166,23 +1166,24 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5891539218584230117}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.045032892, y: 0.034300886, z: 0.009142731}
-  m_Center: {x: 0.0021671115, y: 0.011617344, z: -0.0002747471}
---- !u!114 &5401074492577472521
+  m_Size: {x: 0.021575516, y: 0.022021484, z: 0.009142731}
+  m_Center: {x: 0.0012836887, y: 0.008214113, z: -0.00027461932}
+--- !u!114 &3154612912742240213
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5891539218584230117}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90232593d277348488b81d23079dcbfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 6270597792184743446}
 --- !u!1 &6270597792184743450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,13 +1193,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6651381056563145888}
+  - component: {fileID: 6270597792184743446}
   - component: {fileID: 769657040255104730}
   - component: {fileID: 6270597792184743444}
   - component: {fileID: 6270597792184743445}
   - component: {fileID: 6270597792184743447}
-  - component: {fileID: 6270597792184743448}
   - component: {fileID: 6270597792184743449}
-  - component: {fileID: 6270597792184743446}
+  - component: {fileID: 6270597792184743448}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1215,7 +1216,7 @@ Transform:
   m_GameObject: {fileID: 6270597792184743450}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.906, y: 0.691, z: -2.16}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4871892124652925325}
@@ -1225,6 +1226,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6270597792184743446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6270597792184743450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c055b1ae40d08fb43a9c59900ba7d0a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerName: 
+  healthText: {fileID: 1191129139544205738}
+  Joystick: {fileID: 0}
+  rb: {fileID: 6270597792184743444}
+  speed: 0
+  animator: {fileID: 769657040255104730}
+  Health: 100
+  view: {fileID: 6270597792184743447}
+  speedPlayer: 0.5
+  PlayerCanvas: {fileID: 5891539218314775603}
+  Pillow: {fileID: 5891539218584230117}
+  hasHit: 0
 --- !u!95 &769657040255104730
 Animator:
   serializedVersion: 4
@@ -1272,9 +1297,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.06518845
-  m_Height: 0.2744187
+  m_Height: 0.28836766
   m_Direction: 1
-  m_Center: {x: 0.0018104315, y: 0.13365322, z: 0.0065503716}
+  m_Center: {x: 0.0018104315, y: 0.12667894, z: 0.0065503716}
 --- !u!114 &6270597792184743447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1294,41 +1319,12 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 6270597792184743448}
+  - {fileID: 6270597792184743446}
   - {fileID: 6270597792184743449}
+  - {fileID: 6270597792184743448}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &6270597792184743448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6270597792184743450}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: Walking
-  - Type: 9
-    SynchronizeType: 1
-    Name: Attack
-  - Type: 4
-    SynchronizeType: 1
-    Name: Idle
-  - Type: 4
-    SynchronizeType: 1
-    Name: Defend
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
 --- !u!114 &6270597792184743449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1345,7 +1341,7 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
---- !u!114 &6270597792184743446
+--- !u!114 &6270597792184743448
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1354,18 +1350,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 6270597792184743450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c055b1ae40d08fb43a9c59900ba7d0a1, type: 3}
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthText: {fileID: 0}
-  JoystickSize: {x: 300, y: 300}
-  Joystick: {fileID: 0}
-  rb: {fileID: 0}
-  speed: 0
-  _rigidbody: {fileID: 0}
-  animator: {fileID: 0}
-  speedPlayer: 0.5
-  PlayerCanvas: {fileID: 0}
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 2
+    Name: Walking
+  - Type: 9
+    SynchronizeType: 2
+    Name: Attack
+  m_SynchronizeLayers:
+  - SynchronizeType: 2
+    LayerIndex: 0
 --- !u!1 &6374570739655576442
 GameObject:
   m_ObjectHideFlags: 0

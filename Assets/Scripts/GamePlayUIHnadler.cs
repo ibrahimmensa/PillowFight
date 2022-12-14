@@ -6,7 +6,7 @@ public class GamePlayUIHnadler : MonoBehaviour
 {
     public Joystick JoystickMov;
     public Animator animator;
-    public PlayerTouchMovement PlayerRef;
+    public PlayerController PlayerRef;
     public float speedPlayer;
     public float rotationSpeed;
     // Start is called before the first frame update

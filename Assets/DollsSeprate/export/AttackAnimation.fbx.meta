@@ -24,7 +24,7 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
-    motionNodeName: 
+    motionNodeName: <Root Transform>
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
@@ -46,7 +46,7 @@ ModelImporter:
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 70
+      lastFrame: 50
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -75,7 +75,7 @@ ModelImporter:
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 70
+      lastFrame: 42
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

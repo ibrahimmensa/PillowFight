@@ -45,6 +45,10 @@ MonoBehaviour:
   - PlayerListInLobbySync
   - StartGame
   - StartGameMultiplayer
+  - StartGameMultiplayerRPC
+  - LobbyTimerSync
+  - attackDoneCall
+  - DamageRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

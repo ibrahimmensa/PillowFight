@@ -5,7 +5,7 @@ using UnityEngine;
 public class SceneHandler : Singleton<SceneHandler>
 {
     public bool IsGamePlay=false;
-    public PlayerTouchMovement MainPlayer;
+    public PlayerController MainPlayer;
     public GamePlayUIHnadler UIRef;
     // Start is called before the first frame update
     private void OnEnable()

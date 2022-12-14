@@ -7,10 +7,10 @@ using UnityEngine.SceneManagement;
 using Photon.Realtime;
 using TMPro;
 
-public class PhotonManager : MonoBehaviourPunCallbacks
+public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
 {
     string gameVersion = "1";
-    string gameState = "none";
+    public string gameState = "none";
     public string privateGameCode;
     public List<string> playersNameList = new List<string>();
 
@@ -18,6 +18,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public PhotonView pv;
     public GameObject _playerObj;
     public bool isPhotonConnected = false;
+    public int lobbyTimer = 30;
+
+    Coroutine lobbyTimerCoroutine;
 
     char[] characters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
 
@@ -137,7 +140,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         base.OnConnected();
         isPhotonConnected = true;
-        PhotonNetwork.NickName = UIManager.Instance.playerNameText.text + Random.Range(10000, 99999);
+        PhotonNetwork.NickName = UIManager.Instance.playerNameText.text + Random.Range(10000, 99999); 
+        lobbyTimer = 30;
+        gameState = "none";
         Debug.Log("PUN Basics Tutorial/Launcher: OnConnected() was called by PUN");
     }
 
@@ -156,22 +161,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         base.OnDisconnected(cause);
         Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
         isPhotonConnected = false;
-
-        //RemoveRoomListing();
-        //RemoveRoomListingLocal();
-        //for (int i = 0; i < RoomsPanel.childCount; i++)
-        //{
-        //    if (RoomsPanel.GetChild(i) != null)
-        //        RoomsPanel.GetChild(i).gameObject.GetComponent<Button>().interactable = true;
-
-        //}
-
-        //for (int i = 0; i < RoomsPanelLocal.childCount; i++)
-        //{
-        //    if (RoomsPanelLocal.GetChild(i) != null)
-        //        RoomsPanelLocal.GetChild(i).gameObject.GetComponent<Button>().interactable = true;
-
-        //}
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -204,11 +193,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
         gameState = "InLobby";
         UIManager.Instance.LoadingScreen.SetActive(false);
+        UIManager.Instance.lobbyTimer.text="";
         UIManager.Instance.LobbyScreen.SetActive(true);
         if (PhotonNetwork.IsMasterClient)
         {
             playersNameList.Add(PhotonNetwork.NickName);
             UIManager.Instance.lobbyPlayersNames[0].text = playersNameList[0].Remove(playersNameList[0].Length - 5);
+            lobbyTimerCoroutine= StartCoroutine(LobbyCountDown());
         }
         //if (PhotonNetwork.IsMasterClient)
         //{
@@ -240,7 +231,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        //sceneload
         Debug.Log("PUN Basics Tutorial/Launcher: OnLeftRoom() called by PUN.");
 
         playersNameList.Clear();
@@ -248,25 +238,52 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             UIManager.Instance.lobbyPlayersNames[i].text = "";
         }
-        UIManager.Instance.LobbyScreen.SetActive(false);
-        UIManager.Instance.PrivateRoomScreen.SetActive(false);
-        UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
-        UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
-        UIManager.Instance.LoadingScreen.SetActive(true);
+        if (gameState == "InLobby")
+        {
+            UIManager.Instance.LobbyScreen.SetActive(false);
+            UIManager.Instance.PrivateRoomScreen.SetActive(false);
+            UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
+            UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
+            UIManager.Instance.LoadingScreen.SetActive(true);
+            if (lobbyTimerCoroutine != null)
+                StopCoroutine(lobbyTimerCoroutine);
+        }
+        lobbyTimer = 30;
+
+        if (gameState == "InGame")
+        {
+            Destroy(GameManager.Instance.currentGameEnvironment); 
+            Destroy(_playerObj);
+            UIManager.Instance.QuitConfirmationPopup.SetActive(false);
+            UIManager.Instance.GameUI.SetActive(false);
+            UIManager.Instance.MainScreen.SetActive(true);
+            UIManager.Instance.LoadingScreen.SetActive(true);
+            GameManager.Instance.UICamera.SetActive(false);
+            GameManager.Instance.UICamera.SetActive(true);
+            gameState = "none";
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
         Debug.LogFormat("OnPlayerEnteredRoom() {0}", newPlayer.NickName);
-        playersNameList.Add(newPlayer.NickName);
         if (PhotonNetwork.IsMasterClient)
         {
+            playersNameList.Add(newPlayer.NickName);
             pv.RPC("PlayerListInLobbySync", RpcTarget.All, playersNameList.ToArray());
         }
         if (PhotonNetwork.CurrentRoom.PlayerCount == 4)
         {
             PhotonNetwork.CurrentRoom.IsOpen = false;
+            if (PhotonNetwork.IsMasterClient)
+            {
+                if (gameState != "InGame")
+                {
+                    StopCoroutine(lobbyTimerCoroutine);
+                    GameManager.Instance.StartGameMultiplayer();
+                }
+            }
         }
     }
 
@@ -274,18 +291,32 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         base.OnPlayerLeftRoom(otherPlayer);
         Debug.LogFormat("OnPlayerLeftRoom() {0}", otherPlayer.NickName);
-        playersNameList.Remove(otherPlayer.NickName);
         if (PhotonNetwork.IsMasterClient)
         {
+            playersNameList.Remove(otherPlayer.NickName);
             pv.RPC("PlayerListInLobbySync", RpcTarget.All, playersNameList.ToArray());
         }
         if(gameState=="InLobby" && PhotonNetwork.CurrentRoom.PlayerCount < 4)
         {
             PhotonNetwork.CurrentRoom.IsOpen = true;
         }
+        if (gameState == "InGame" && PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        {
+            UIManager.Instance.VictoryPopup.SetActive(true);
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.LeaveLobby();
+        }
     }
 
-#endregion
+    void IInRoomCallbacks.OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (PhotonNetwork.IsMasterClient && gameState == "InLobby")
+        {
+            lobbyTimerCoroutine=StartCoroutine(LobbyCountDown());
+        }
+    }
+
+    #endregion
 
     [PunRPC]
     public void PlayerListInLobbySync(string[] playerNames)
@@ -318,6 +349,27 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             UIManager.Instance.lobbyPlayersNames[i].text = playersNameList[i].Remove(playersNameList[i].Length - 5);
         }
+    }
+
+    IEnumerator LobbyCountDown()
+    {
+        while (lobbyTimer > 0)
+        {
+            lobbyTimer--;
+            yield return new WaitForSecondsRealtime(1f);
+            pv.RPC("LobbyTimerSync", RpcTarget.All, lobbyTimer);
+        }
+        if (gameState != "InGame")
+        {
+            GameManager.Instance.StartGameMultiplayer();
+        }
+    }
+
+    [PunRPC]
+    void LobbyTimerSync(int time)
+    {
+        lobbyTimer = time;
+        UIManager.Instance.lobbyTimer.text = lobbyTimer.ToString();
     }
 
 }

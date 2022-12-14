@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 public class Pillow : MonoBehaviour
 {
+    public PlayerController player;
     // Start is called before the first frame update
     //private PlayerTouchMovement reff;
     void Start()
@@ -32,9 +33,17 @@ public class Pillow : MonoBehaviour
     //}
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag=="Player")
+        if (gameObject.tag == "Hit" && !player.hasHit)
         {
-            Debug.Log("Hit");
+            if (other.tag == "Player")
+            {
+                if (player.view.IsMine)
+                {
+                    Debug.Log("hittt"+other.GetComponent<PlayerController>().PlayerName);
+                    other.GetComponent<PlayerController>().Damage();
+                    player.hasHit = true;
+                }
+            }
         }
     }
 }

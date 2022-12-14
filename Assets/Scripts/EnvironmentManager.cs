@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnvironmentManager : MonoBehaviour
 {
     public GameObject[] playerSpawnPoints;
+    public Camera cam;
 
     // Start is called before the first frame update
     void Start()

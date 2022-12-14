@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_ANDROID || UNITY_IOS
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+#endif
 using UnityEngine.SocialPlatforms;
 using System.Threading.Tasks;
 using System.Linq;
@@ -10,12 +12,11 @@ using Firebase.Database;
 using Firebase.Auth;
 using TMPro;
 
-public class FirebaseManager : MonoBehaviour
+public class FirebaseManager : Singleton<FirebaseManager>
 {
     public DatabaseReference dbreference;
     FirebaseAuth auth;
     FirebaseUser User;
-
 
     [Header("UserData")]
     public TMP_InputField usernameField;
@@ -33,18 +34,22 @@ public class FirebaseManager : MonoBehaviour
     void Start()
     {
         dbreference = FirebaseDatabase.DefaultInstance.RootReference;
+#if UNITY_ANDROID || UNITY_IOS
         PlayGamesClientConfiguration config = new PlayGamesClientConfiguration.Builder()
-       .RequestServerAuthCode(false /* Don't force refresh */)
-       .Build();
+        .RequestServerAuthCode(false /* Don't force refresh */)
+        .Build();
 
         PlayGamesPlatform.InitializeInstance(config);
         PlayGamesPlatform.Activate();
         PlayGamesSignIn();
+#endif
     }
 
     public void PlayGamesSignIn()
     {
-        Social.localUser.Authenticate((bool success) => {
+#if UNITY_ANDROID || UNITY_IOS
+        Social.localUser.Authenticate((bool success) =>
+        {
             if (success)
             {
                 string authCode = PlayGamesPlatform.Instance.GetServerAuthCode();
@@ -56,6 +61,7 @@ public class FirebaseManager : MonoBehaviour
                 UIManager.Instance.DebugText.text = UIManager.Instance.DebugText.text + "SignInNOTSuccessfull   ";
             }
         });
+#endif
     }
 
     void PlayGamesAuthentication(string authCode)
@@ -82,8 +88,8 @@ public class FirebaseManager : MonoBehaviour
             UIManager.Instance.DebugText.text = UIManager.Instance.DebugText.text + "User signed in successfully: { 0} ({ 1})  "+
                 User.DisplayName+ "   "+ User.UserId;
 
-            StartCoroutine(LoadUserData());
-            onClickLeaderboardButton();
+            SaveDataToFirebase(UIManager.Instance.playerNameText.text, 700, 46, 6, 9, 40, 23, 15);
+            //onClickLeaderboardButton();
 
         });
     }
@@ -101,7 +107,7 @@ public class FirebaseManager : MonoBehaviour
         StartCoroutine(UpdateMultiplayerGames(multiplayerGame));
         StartCoroutine(UpdateKills(killCount));
 
-        Invoke("LoadDataAfterDelay", 5f);
+        Invoke("LoadDataAfterDelay", 15f);
     }
 
     void LoadDataAfterDelay()
@@ -290,7 +296,7 @@ public class FirebaseManager : MonoBehaviour
             diamondsField.text = "0";
             pillowsField.text = "0";
             totalWonGameCountField.text = "0";
-            winRateField.text = "0";
+            winRateField.text = "0%";
             multiplayerCountField.text = "0";
             killCountField.text = "0";
         }
@@ -303,7 +309,7 @@ public class FirebaseManager : MonoBehaviour
             diamondsField.text = snapshot.Child("diamonds").Value.ToString();
             pillowsField.text = snapshot.Child("pillows").Value.ToString();
             totalWonGameCountField.text = snapshot.Child("totalGameWon").Value.ToString();
-            winRateField.text = snapshot.Child("winRate").Value.ToString();
+            winRateField.text = snapshot.Child("winRate").Value.ToString()+"%";
             multiplayerCountField.text = snapshot.Child("multiplayerGames").Value.ToString();
             killCountField.text = snapshot.Child("kills").Value.ToString();
 
@@ -346,9 +352,6 @@ public class FirebaseManager : MonoBehaviour
                 scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username,i, coins, diamonds);
             }
 
-            //Go to scoareboard screen
-            //Scoreboardpanel.SetActive(true);
-            //Userdatapanel.SetActive(false);
         }
     }
 
