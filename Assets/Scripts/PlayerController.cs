@@ -8,33 +8,38 @@ using Photon;
 using Photon.Pun;
 using UnityEngine.UI;
 
-
+public enum PlayerState
+{
+    IDLE,
+    WALKING,
+    ATTACK,
+    BLOCK
+}
 
 public class PlayerController : MonoBehaviourPun, IPunObservable
 {
     public string PlayerName="";
+    public bool isAIPlayer=false;
     public Image healthText;
-    //[SerializeField]
-    //private Vector2 JoystickSize = new Vector2(300, 300);
     [SerializeField]
     private Joystick Joystick;
     [SerializeField]
     public Rigidbody rb;
-    public float speed;
-    //private Finger MovementFinger;
-    //private Vector2 MovementAmount;
     public Animator animator;
     public float Health = 100;
     private float MinHealth = 0;
     private float MaxHealth = 100;
-    //private object PhotonTargets;
     public PhotonView view;
     public float speedPlayer = 1;
     public Canvas PlayerCanvas;
     public GameObject Pillow;
     public bool hasHit = false;
-    //public object Photontargets { get; private set; }
-    
+    public bool hasBlock = false;
+    public EnemyDetector EnemeyDetectionTriggerForAI;
+    float distanceFromNearestPlayer = 10000;
+
+    public PlayerState playerState = PlayerState.IDLE;
+
 
     public void SetPlayerName(string name)
     {
@@ -45,22 +50,72 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         if (view.IsMine)
         {
-            Joystick = UIManager.Instance.JoyStick.GetComponent<FixedJoystick>();
+            if (isAIPlayer)
+            {
+                view.RPC("setAIPlayer", RpcTarget.All);
+            }
+            else
+            {
+                Joystick = UIManager.Instance.JoyStick.GetComponent<FixedJoystick>();
+            }
         }
+    }
+
+    [PunRPC]
+    void setAIPlayer()
+    {
+        isAIPlayer = true;
+        EnemeyDetectionTriggerForAI.gameObject.SetActive(true);
+        speedPlayer = 0.25f;
+        view.OwnershipTransfer = OwnershipOption.Takeover;
     }
 
     private void Update()
     {
         if (view.IsMine)
         {
-            if (Joystick.Horizontal != 0 && Joystick.Vertical != 0)
+            if (isAIPlayer)
             {
-                animator.SetBool("Walking", true);
-                Move(Joystick.Horizontal, Joystick.Vertical);
+                GameObject currentEnemy = NearestPlayer();
+                if (currentEnemy != null)
+                {
+                    if (distanceFromNearestPlayer <= 0.5f)
+                    {
+                        attack();
+                    }
+                    else
+                    {
+                        if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                        {
+                            animator.SetBool("Walking", true);
+                            MoveAI(currentEnemy.transform);
+                            playerState = PlayerState.WALKING;
+                        }
+                    }
+                }
+                else
+                {
+                    animator.SetBool("Walking", false);
+                    playerState = PlayerState.IDLE;
+                }
             }
             else
             {
-                animator.SetBool("Walking", false);
+                if (Joystick.Horizontal != 0 && Joystick.Vertical != 0)
+                {
+                    if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                    {
+                        animator.SetBool("Walking", true);
+                        Move(Joystick.Horizontal, Joystick.Vertical);
+                        playerState = PlayerState.WALKING;
+                    }
+                }
+                else
+                {
+                    animator.SetBool("Walking", false);
+                    if(playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                        playerState = PlayerState.IDLE;
+                }
             }
         }
 
@@ -75,17 +130,54 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         {
             transform.LookAt(transform.position - dir);
         }
-
     }
 
+    public void MoveAI(Transform enemy)
+    {
+        transform.LookAt(enemy);
+        rb.velocity = transform.forward * speedPlayer;
+    }
+
+    GameObject NearestPlayer()
+    {
+        GameObject nearestPlayer=null;
+        float distance = 10000;
+        foreach (Collider player in EnemeyDetectionTriggerForAI.TriggerList)
+        {
+            try
+            {
+                float dist = Vector3.Distance(player.transform.position, transform.position);
+                if (distance > dist)
+                {
+                    nearestPlayer = player.gameObject;
+                    distance = dist;
+                    distanceFromNearestPlayer = dist;
+                }
+            }
+            catch
+            {
+                for(int i = 0; i < EnemeyDetectionTriggerForAI.TriggerList.Count; i++)
+                {
+                    if (EnemeyDetectionTriggerForAI.TriggerList[i] == null)
+                        EnemeyDetectionTriggerForAI.TriggerList.RemoveAt(i);
+                }
+                break;
+            }
+        }
+        return nearestPlayer;
+    }
 
     public void attack()
     {
         if (view.IsMine)
         {
-            view.RPC("attackCall", RpcTarget.All);
-            animator.SetTrigger("Attack");
-            Invoke("attackDoneWithDelay", 1.5f);
+            if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+            {
+                view.RPC("attackCall", RpcTarget.All);
+                animator.SetBool("Walking", false);
+                animator.SetTrigger("Attack"); 
+                view.RPC("attackDoneCall", RpcTarget.All);
+            }
         }
     }
 
@@ -94,44 +186,68 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         hasHit = false;
         Pillow.tag = "Hit";
+        playerState = PlayerState.ATTACK;
     }
 
     void attackDoneWithDelay()
     {
-        view.RPC("attackDoneCall", RpcTarget.All);
+        Pillow.tag = "Pillow";
+        hasHit = false;
+        playerState = PlayerState.IDLE;
     }
 
     [PunRPC]
     public void attackDoneCall()
     {
-        Pillow.tag = "Pillow";
-        hasHit = false;
+        Invoke("attackDoneWithDelay", 1.5f);
     }
 
+    public void block()
+    {
+        if (view.IsMine)
+        {
+            if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+            {
+                view.RPC("blockCall", RpcTarget.All);
+                animator.SetBool("Walking", false);
+                //animator.SetTrigger("Block");
+                Invoke("blockDoneWithDelay", 1.5f);
+            }
+        }
+    }
 
-    //private void OnCollisionEnter(Collision other)
-    //{
-    //    Debug.Log("hittt "+other.gameObject.name);
-    //    if (other.gameObject.tag == "Hit")
-    //    {
-    //        Debug.Log("hittt outside");
-    //        if (view.IsMine)
-    //        {
-    //            Debug.Log("hittt");
-    //            view.RPC("Damage", RpcTarget.All, PlayerName);
-    //        }
-    //    }
-    //}
+    [PunRPC]
+    public void blockCall()
+    {
+        hasBlock = true;
+        playerState = PlayerState.BLOCK;
+    }
+
+    void blockDoneWithDelay()
+    {
+        view.RPC("blockDoneCall", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void blockDoneCall()
+    {
+        hasBlock = false;
+        playerState = PlayerState.IDLE;
+    }
 
     public void Damage()
     {
-        view.RPC("DamageRPC", RpcTarget.All);
+        if (!hasBlock)
+        {
+            view.RPC("DamageRPC", RpcTarget.All);
+        }
     }
 
 
     [PunRPC]
     public void DamageRPC()
     {
+        //hurt animation
         Health -= 20;
         healthText.fillAmount = Health / MaxHealth;
         if (Health <= 0)
@@ -143,9 +259,10 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     public void die()
     {
         Destroy(gameObject);
-        if (view.IsMine)
+        if (view.IsMine && !isAIPlayer)
         {
             UIManager.Instance.DiePopup.SetActive(true);
+            AdsManager.Instance.ShowInterstitialAdWithDelay();
             PhotonNetwork.LeaveRoom();
             PhotonNetwork.LeaveLobby();
         }

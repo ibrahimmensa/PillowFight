@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
 
-public class AdsManager : MonoBehaviour,IUnityAdsInitializationListener, IUnityAdsLoadListener,IUnityAdsShowListener
+public enum RewardType
+{
+    DOUBLE_REWARD,
+    FREE_COINS
+}
+
+public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener, IUnityAdsLoadListener,IUnityAdsShowListener
 {
     public string androidGameId;
     public string iosGameId;
@@ -22,6 +28,8 @@ public class AdsManager : MonoBehaviour,IUnityAdsInitializationListener, IUnityA
     string rewardedAdId;
     string bannerAdId;
     public bool testMode = true;
+
+    public RewardType rewardType;
 
     private void Awake()
     {
@@ -50,6 +58,8 @@ public class AdsManager : MonoBehaviour,IUnityAdsInitializationListener, IUnityA
     {
         Debug.Log("Unity Ads initialization complete");
         LoadBannerAd();
+        LoadInterstitialAd();
+        LoadRewardedAd();
     }
 
     public void OnInitializationFailed(UnityAdsInitializationError error, string message)
@@ -68,21 +78,29 @@ public class AdsManager : MonoBehaviour,IUnityAdsInitializationListener, IUnityA
         Advertisement.Show(interstitialAdId, this);
     }
 
+    public void ShowInterstitialAdWithDelay()
+    {
+        Invoke("ShowInterstitialAd", 1f);
+    }
+
     public void LoadRewardedAd()
     {
         rewardedAdId = (Application.platform == RuntimePlatform.IPhonePlayer) ? iosRewardedGameId : androidRewardedGameId;
         Advertisement.Load(rewardedAdId, this);
     }
 
-    public void ShowRewardedAd()
+    public void ShowRewardedAd(string type)
     {
+        if (type == "DoubleReward")
+            rewardType = RewardType.DOUBLE_REWARD;
+        else if (type == "FreeCoins")
+            rewardType = RewardType.FREE_COINS;
         Advertisement.Show(rewardedAdId, this);
     }
 
     public void OnUnityAdsAdLoaded(string placementId)
     {
         Debug.Log("OnUnityAdsAdLoaded"); 
-        Advertisement.Show(placementId, this);
     }
 
     public void OnUnityAdsFailedToLoad(string placementId, UnityAdsLoadError error, string message)
@@ -109,9 +127,27 @@ public class AdsManager : MonoBehaviour,IUnityAdsInitializationListener, IUnityA
     public void OnUnityAdsShowComplete(string placementId, UnityAdsShowCompletionState showCompletionState)
     {
         Debug.Log("OnUnityAdsShowComplete:"+showCompletionState);
-        if (showCompletionState == UnityAdsShowCompletionState.COMPLETED)
+
+        if (placementId == interstitialAdId)
+            LoadInterstitialAd();
+        else if (placementId == rewardedAdId)
+            LoadRewardedAd();
+
+        if (placementId == rewardedAdId && showCompletionState == UnityAdsShowCompletionState.COMPLETED)
         {
-            Debug.Log("Reward");
+            Debug.Log("Reward"); 
+            if (rewardType == RewardType.DOUBLE_REWARD)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+            }
+            else if (rewardType == RewardType.FREE_COINS)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+            }
         }
         Advertisement.Banner.Show(bannerAdId);
     }

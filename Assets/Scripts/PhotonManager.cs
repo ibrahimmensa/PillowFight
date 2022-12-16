@@ -139,7 +139,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
     public override void OnConnected()
     {
         base.OnConnected();
-        isPhotonConnected = true;
+        //isPhotonConnected = true;
         PhotonNetwork.NickName = UIManager.Instance.playerNameText.text + Random.Range(10000, 99999); 
         lobbyTimer = 30;
         gameState = "none";
@@ -161,6 +161,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         base.OnDisconnected(cause);
         Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
         isPhotonConnected = false;
+        UIManager.Instance.LoadingScreen.SetActive(false);
+        UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -303,6 +305,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         if (gameState == "InGame" && PhotonNetwork.CurrentRoom.PlayerCount == 1)
         {
             UIManager.Instance.VictoryPopup.SetActive(true);
+            AdsManager.Instance.ShowInterstitialAdWithDelay();
+            int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+            PlayerPrefs.SetInt("Coins", totalCoins);
+            UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
             PhotonNetwork.LeaveRoom();
             PhotonNetwork.LeaveLobby();
         }

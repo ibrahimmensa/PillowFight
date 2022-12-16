@@ -18,9 +18,9 @@ public class IAPManager : MonoBehaviour
     public void CoinsPurchased(int coins)
     {
         Debug.Log("Purchase Complete.........coins: "+coins);
-        //int totalCoins;
-        //totalCoins = PlayerPrefs.GetInt("Coins", 0) + coins;
-        //PlayerPrefs.SetInt("Coins", totalCoins);
-        //MenuHandler.Instance.mainMenu.updateStats();
+        int totalCoins;
+        totalCoins = PlayerPrefs.GetInt("Coins", 0) + coins;
+        PlayerPrefs.SetInt("Coins", totalCoins);
+        UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
     }
 }

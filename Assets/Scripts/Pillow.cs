@@ -5,8 +5,8 @@ using Photon.Pun;
 public class Pillow : MonoBehaviour
 {
     public PlayerController player;
+
     // Start is called before the first frame update
-    //private PlayerTouchMovement reff;
     void Start()
     {
         
@@ -18,19 +18,6 @@ public class Pillow : MonoBehaviour
         
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.tag == "Player")
-    //    {
-    //        Debug.Log("Hit");
-    //        //if (reff.photonView.IsMine)
-    //        //{
-    //        //    reff.photonView.RPC("Damage", RpcTarget.All);
-    //        //}
-    //    }
-
-
-    //}
     private void OnTriggerEnter(Collider other)
     {
         if (gameObject.tag == "Hit" && !player.hasHit)

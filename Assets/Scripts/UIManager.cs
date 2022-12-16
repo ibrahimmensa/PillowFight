@@ -48,6 +48,7 @@ public class UIManager : Singleton<UIManager>
     public GameObject QuitConfirmationPopup;
     public GameObject VictoryPopup;
     public GameObject DiePopup;
+    public TMP_Text[] coinsAmountText;
 
     public GameObject BGMusicToogleOn;
     public GameObject BGMusicToogleOff;
@@ -59,21 +60,6 @@ public class UIManager : Singleton<UIManager>
 
     public TMP_Text DebugText;
 
-    public void PanelFadeIn(CanvasGroup canvasGroup, RectTransform recttransform)
-    {
-        Debug.Log("Working");
-        canvasGroup.alpha = 0f;
-        recttransform.transform.localPosition = new Vector3(0f, -1000f, 0f);
-        recttransform.DOAnchorPos(new Vector2(0f, 0f), fadeTime, false).SetEase(Ease.OutElastic);
-        canvasGroup.DOFade(1, fadeTime);
-    }
-    public void PanelFadeOut(CanvasGroup canvasGroup, RectTransform recttransform)
-    {
-        canvasGroup.alpha = 1f;
-        recttransform.transform.localPosition = new Vector3(0f, 0f, 0f);
-        recttransform.DOAnchorPos(new Vector2(0f, -1000f), fadeTime, false).SetEase(Ease.InOutQuint);
-        canvasGroup.DOFade(0, fadeTime);
-    }
     void Start()
     {
         if (PlayerPrefs.GetString("PlayerName", "") == "")
@@ -102,10 +88,26 @@ public class UIManager : Singleton<UIManager>
         PhotonNetwork.NickName = playerNameText.text + Random.Range(10000, 99999);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateCoinsStatus(int coins)
     {
-        
+        for (int i = 0; i < coinsAmountText.Length; i++)
+            coinsAmountText[i].text = coins.ToString();
+    }
+
+    public void PanelFadeIn(CanvasGroup canvasGroup, RectTransform recttransform)
+    {
+        Debug.Log("Working");
+        canvasGroup.alpha = 0f;
+        recttransform.transform.localPosition = new Vector3(0f, -1000f, 0f);
+        recttransform.DOAnchorPos(new Vector2(0f, 0f), fadeTime, false).SetEase(Ease.OutElastic);
+        canvasGroup.DOFade(1, fadeTime);
+    }
+    public void PanelFadeOut(CanvasGroup canvasGroup, RectTransform recttransform)
+    {
+        canvasGroup.alpha = 1f;
+        recttransform.transform.localPosition = new Vector3(0f, 0f, 0f);
+        recttransform.DOAnchorPos(new Vector2(0f, -1000f), fadeTime, false).SetEase(Ease.InOutQuint);
+        canvasGroup.DOFade(0, fadeTime);
     }
 
     public void OnClickSettingsButton()
@@ -337,6 +339,11 @@ public class UIManager : Singleton<UIManager>
     public void onClickAttack()
     {
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().attack();
+    }
+
+    public void onClickBlock()
+    {
+        PhotonManager.instance._playerObj.GetComponent<PlayerController>().block();
     }
 
     public void onClickQuitGame()

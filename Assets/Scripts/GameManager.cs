@@ -13,7 +13,15 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (PlayerPrefs.GetInt("Coins", 0) == 0)
+        {
+            PlayerPrefs.SetInt("Coins", 0);
+            UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+        }
+        else
+        {
+            UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+        }
     }
 
     // Update is called once per frame
@@ -45,5 +53,16 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.GameUI.SetActive(true);
         UICamera.SetActive(false);
         UICamera.SetActive(true);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (PhotonManager.instance.playersNameList.Count < 4)
+            {
+                for(int i=0; i < (4 - PhotonManager.instance.playersNameList.Count); i++)
+                {
+                    GameObject AIPlayer= PhotonNetwork.InstantiateRoomObject("Player", currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[PhotonManager.instance.playersNameList.Count+i].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[PhotonManager.instance.playersNameList.Count + i].transform.rotation, 0);
+                    AIPlayer.GetComponent<PlayerController>().isAIPlayer = true;
+                }
+            }
+        }
     }
 }
