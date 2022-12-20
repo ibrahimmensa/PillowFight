@@ -2636,8 +2636,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSpawnPoints:
   - {fileID: 1751366564409101988}
-  - {fileID: 8159006350920605348}
   - {fileID: 651648666435670777}
+  - {fileID: 8159006350920605348}
   - {fileID: 3314251029105859612}
   cam: {fileID: 1732280689}
 --- !u!1 &6369159736318505486

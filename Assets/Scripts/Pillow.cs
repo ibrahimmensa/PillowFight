@@ -20,11 +20,11 @@ public class Pillow : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (gameObject.tag == "Hit" && !player.hasHit)
+        if (!player.hasHit)
         {
             if (other.tag == "Player")
             {
-                if (player.view.IsMine)
+                if (player.view.IsMine || GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
                 {
                     Debug.Log("hittt"+other.GetComponent<PlayerController>().PlayerName);
                     other.GetComponent<PlayerController>().Damage();

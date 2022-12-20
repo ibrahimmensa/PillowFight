@@ -9,7 +9,6 @@ TagManager:
   - CinemachineTarget
   - Bullet
   - HAND
-  - Hit
   layers:
   - Default
   - TransparentFX

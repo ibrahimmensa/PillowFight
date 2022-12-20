@@ -6,7 +6,8 @@ using UnityEngine.Advertisements;
 public enum RewardType
 {
     DOUBLE_REWARD,
-    FREE_COINS
+    FREE_COINS,
+    TIMER_MODE_EXTENSION
 }
 
 public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener, IUnityAdsLoadListener,IUnityAdsShowListener
@@ -95,6 +96,8 @@ public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener,
             rewardType = RewardType.DOUBLE_REWARD;
         else if (type == "FreeCoins")
             rewardType = RewardType.FREE_COINS;
+        else if (type == "ExtraTime")
+            rewardType = RewardType.TIMER_MODE_EXTENSION;
         Advertisement.Show(rewardedAdId, this);
     }
 
@@ -147,6 +150,10 @@ public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener,
                 int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
                 PlayerPrefs.SetInt("Coins", totalCoins);
                 UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+            }
+            else if (rewardType == RewardType.TIMER_MODE_EXTENSION)
+            {
+                GameManager.Instance.TimerModeExtension();
             }
         }
         Advertisement.Banner.Show(bannerAdId);

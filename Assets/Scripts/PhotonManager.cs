@@ -78,9 +78,20 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         if (isPhotonConnected)
         {
             AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-            RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = false };
-            PhotonNetwork.CreateRoom(privateGameCode, newRoom);
-            UIManager.Instance.LoadingScreen.SetActive(true);
+            if (PlayerPrefs.GetInt("Coins",0) >= 500)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+                RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = false };
+                PhotonNetwork.CreateRoom(privateGameCode, newRoom);
+                UIManager.Instance.LoadingScreen.SetActive(true);
+            }
+            else
+            {
+                UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
+            }
         }
         else
         {
@@ -95,8 +106,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
             AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
             if (UIManager.Instance.privateRoomCodeInputField.text != "")
             {
-                PhotonNetwork.JoinRoom(UIManager.Instance.privateRoomCodeInputField.text);
-                UIManager.Instance.LoadingScreen.SetActive(true);
+                if (PlayerPrefs.GetInt("Coins", 0) >= 500)
+                {
+                    int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 500;
+                    PlayerPrefs.SetInt("Coins", totalCoins);
+                    UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+                    PhotonNetwork.JoinRoom(UIManager.Instance.privateRoomCodeInputField.text);
+                    UIManager.Instance.LoadingScreen.SetActive(true);
+                }
+                else
+                {
+                    UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
+                }
             }
         }
         else
@@ -124,8 +146,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         if (isPhotonConnected)
         {
             AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-            PhotonNetwork.JoinRandomRoom();
-            UIManager.Instance.LoadingScreen.SetActive(true);
+            if (PlayerPrefs.GetInt("Coins", 0) >= 500)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+                PhotonNetwork.JoinRandomRoom();
+                UIManager.Instance.LoadingScreen.SetActive(true);
+            }
+            else
+            {
+                UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
+            }
         }
         else
         {
@@ -256,12 +289,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         {
             Destroy(GameManager.Instance.currentGameEnvironment); 
             Destroy(_playerObj);
+            GameManager.Instance.gameModeType = GameModeType.NONE;
             UIManager.Instance.QuitConfirmationPopup.SetActive(false);
             UIManager.Instance.GameUI.SetActive(false);
             UIManager.Instance.MainScreen.SetActive(true);
             UIManager.Instance.LoadingScreen.SetActive(true);
             GameManager.Instance.UICamera.SetActive(false);
             GameManager.Instance.UICamera.SetActive(true);
+            GameManager.Instance.countOfAIPlayers=0;
             gameState = "none";
         }
     }
@@ -302,7 +337,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         {
             PhotonNetwork.CurrentRoom.IsOpen = true;
         }
-        if (gameState == "InGame" && PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        if (gameState == "InGame" && PhotonNetwork.CurrentRoom.PlayerCount == 1 && GameManager.Instance.countOfAIPlayers==0)
         {
             UIManager.Instance.VictoryPopup.SetActive(true);
             AdsManager.Instance.ShowInterstitialAdWithDelay();

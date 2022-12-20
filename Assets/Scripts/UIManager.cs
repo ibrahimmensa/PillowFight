@@ -40,6 +40,7 @@ public class UIManager : Singleton<UIManager>
     public GameObject JoinPrivateRoomFailedPanel;
     public GameObject JoinPrivateRoomFullPanel;
     public GameObject InternetConnectionErrorPanel;
+    public GameObject NotEnoughCoinsForMultiplayerErrorPanel;
     public GameObject LoadingScreen;
     public GameObject GameUI;
     public GameObject JoyStick;
@@ -48,7 +49,9 @@ public class UIManager : Singleton<UIManager>
     public GameObject QuitConfirmationPopup;
     public GameObject VictoryPopup;
     public GameObject DiePopup;
+    public GameObject GameOverPopup;
     public TMP_Text[] coinsAmountText;
+    public TMP_Text TimeTextForTimerMode;
 
     public GameObject BGMusicToogleOn;
     public GameObject BGMusicToogleOff;
@@ -350,17 +353,59 @@ public class UIManager : Singleton<UIManager>
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         QuitConfirmationPopup.SetActive(true);
+        if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+        {
+            Time.timeScale = 0;
+        }
     }
 
     public void onClickYesQuit()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.LeaveLobby();
+        if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+        {
+            PhotonNetwork.LeaveRoom();
+            PhotonNetwork.LeaveLobby();
+        }
+        else if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE)
+        {
+            Time.timeScale = 1;
+            if (GameManager.Instance.CurrentGameKillCount < 5 && GameManager.Instance.CurrentGameKillCount > 0)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 250;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+            }
+            else if (GameManager.Instance.CurrentGameKillCount >= 5)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+            }
+            GameManager.Instance.CurrentGameKillCount = 0;
+            Destroy(GameManager.Instance.currentGameEnvironment);
+            Destroy(PhotonManager.instance._playerObj);
+            Destroy(GameManager.Instance.AIPlayer);
+            QuitConfirmationPopup.SetActive(false);
+            GameUI.SetActive(false);
+            MainScreen.SetActive(true);
+            GameManager.Instance.UICamera.SetActive(false);
+            GameManager.Instance.UICamera.SetActive(true);
+            GameManager.Instance.gameModeType = GameModeType.NONE;
+        }
+        else if (GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+        {
+            StopCoroutine(GameManager.Instance.TimerForTimerMode);
+            GameManager.Instance.TimerModeGameplayOver();
+        }
     }
     public void onClickNoQuit()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
         QuitConfirmationPopup.SetActive(false);
+        if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+        {
+            Time.timeScale = 1;
+        }
     }
 }

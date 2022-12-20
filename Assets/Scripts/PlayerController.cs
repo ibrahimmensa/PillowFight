@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     public bool hasBlock = false;
     public EnemyDetector EnemeyDetectionTriggerForAI;
     float distanceFromNearestPlayer = 10000;
+    float delayBeforeEveryAIAttack = 0;
 
     public PlayerState playerState = PlayerState.IDLE;
 
@@ -48,11 +49,28 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private void Start()
     {
-        if (view.IsMine)
+        if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+        {
+            if (view.IsMine)
+            {
+                if (isAIPlayer)
+                {
+                    view.RPC("setAIPlayer", RpcTarget.All);
+                }
+                else
+                {
+                    Joystick = UIManager.Instance.JoyStick.GetComponent<FixedJoystick>();
+                }
+            }
+        }
+
+        if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
         {
             if (isAIPlayer)
             {
-                view.RPC("setAIPlayer", RpcTarget.All);
+                isAIPlayer = true;
+                EnemeyDetectionTriggerForAI.gameObject.SetActive(true);
+                speedPlayer = 0.2f;
             }
             else
             {
@@ -72,7 +90,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private void Update()
     {
-        if (view.IsMine)
+        if (view.IsMine || GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
         {
             if (isAIPlayer)
             {
@@ -81,12 +99,23 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 {
                     if (distanceFromNearestPlayer <= 0.5f)
                     {
-                        attack();
+                        if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                        {
+                            delayBeforeEveryAIAttack += Time.deltaTime;
+                            if(delayBeforeEveryAIAttack>2f)
+                                attack();
+                            else
+                            {
+                                animator.SetBool("Walking", false);
+                                playerState = PlayerState.IDLE;
+                            }
+                        }
                     }
                     else
                     {
                         if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
                         {
+                            delayBeforeEveryAIAttack = 0;
                             animator.SetBool("Walking", true);
                             MoveAI(currentEnemy.transform);
                             playerState = PlayerState.WALKING;
@@ -169,14 +198,27 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     public void attack()
     {
-        if (view.IsMine)
+        if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+        {
+            if (view.IsMine)
+            {
+                if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                {
+                    view.RPC("attackCall", RpcTarget.All);
+                    animator.SetBool("Walking", false);
+                    animator.SetTrigger("Attack");
+                    view.RPC("attackDoneCall", RpcTarget.All);
+                }
+            }
+        }
+        else if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
         {
             if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
             {
-                view.RPC("attackCall", RpcTarget.All);
+                attackCall();
                 animator.SetBool("Walking", false);
-                animator.SetTrigger("Attack"); 
-                view.RPC("attackDoneCall", RpcTarget.All);
+                animator.SetTrigger("Attack");
+                attackDoneCall();
             }
         }
     }
@@ -184,14 +226,20 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     [PunRPC]
     public void attackCall()
     {
-        hasHit = false;
-        Pillow.tag = "Hit";
         playerState = PlayerState.ATTACK;
+        delayBeforeEveryAIAttack = 0;
+        hasHit = false;
+        Invoke("attackWithDelay", 0.5f);
+    }
+
+    void attackWithDelay()
+    {
+        Pillow.GetComponent<BoxCollider>().enabled = true;
     }
 
     void attackDoneWithDelay()
     {
-        Pillow.tag = "Pillow";
+        Pillow.GetComponent<BoxCollider>().enabled = false;
         hasHit = false;
         playerState = PlayerState.IDLE;
     }
@@ -204,14 +252,27 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     public void block()
     {
-        if (view.IsMine)
+        if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+        {
+            if (view.IsMine)
+            {
+                if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
+                {
+                    view.RPC("blockCall", RpcTarget.All);
+                    animator.SetBool("Walking", false);
+                    //animator.SetTrigger("Block");
+                    view.RPC("blockDoneCall", RpcTarget.All);
+                }
+            }
+        }
+        else if(GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
         {
             if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
             {
-                view.RPC("blockCall", RpcTarget.All);
+                blockCall();
                 animator.SetBool("Walking", false);
                 //animator.SetTrigger("Block");
-                Invoke("blockDoneWithDelay", 1.5f);
+                blockDoneCall();
             }
         }
     }
@@ -225,21 +286,24 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     void blockDoneWithDelay()
     {
-        view.RPC("blockDoneCall", RpcTarget.All);
+        hasBlock = false;
+        playerState = PlayerState.IDLE;
     }
 
     [PunRPC]
     public void blockDoneCall()
     {
-        hasBlock = false;
-        playerState = PlayerState.IDLE;
+        Invoke("blockDoneWithDelay", 1.5f);
     }
 
     public void Damage()
     {
         if (!hasBlock)
         {
-            view.RPC("DamageRPC", RpcTarget.All);
+            if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+                view.RPC("DamageRPC", RpcTarget.All);
+            else if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+                DamageRPC();
         }
     }
 
@@ -258,14 +322,99 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     public void die()
     {
-        Destroy(gameObject);
-        if (view.IsMine && !isAIPlayer)
+        if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
         {
-            UIManager.Instance.DiePopup.SetActive(true);
-            AdsManager.Instance.ShowInterstitialAdWithDelay();
-            PhotonNetwork.LeaveRoom();
-            PhotonNetwork.LeaveLobby();
+            if (isAIPlayer)
+            {
+                GameManager.Instance.countOfAIPlayers--;
+                if (PhotonNetwork.CurrentRoom.PlayerCount == 1 && GameManager.Instance.countOfAIPlayers == 0 && PhotonNetwork.IsMasterClient)
+                {
+                    UIManager.Instance.VictoryPopup.SetActive(true);
+                    AdsManager.Instance.ShowInterstitialAdWithDelay();
+                    int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+                    PlayerPrefs.SetInt("Coins", totalCoins);
+                    UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+                    PhotonNetwork.LeaveRoom();
+                    PhotonNetwork.LeaveLobby();
+                }
+            }
+            if (view.IsMine && !isAIPlayer)
+            {
+                UIManager.Instance.DiePopup.SetActive(true);
+                AdsManager.Instance.ShowInterstitialAdWithDelay();
+                PhotonNetwork.LeaveRoom();
+                PhotonNetwork.LeaveLobby();
+            }
         }
+
+        else if(GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE)
+        {
+            if (isAIPlayer)
+            {
+                //spawn next player
+                GameManager.Instance.CurrentGameKillCount++;
+                GameManager.Instance.SpawnNextAIPlayer();
+            }
+            else
+            {
+                if (GameManager.Instance.CurrentGameKillCount<5 && GameManager.Instance.CurrentGameKillCount > 0)
+                {
+                    int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 250;
+                    PlayerPrefs.SetInt("Coins", totalCoins);
+                    UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+                }
+                else if(GameManager.Instance.CurrentGameKillCount >=5)
+                {
+                    int totalCoins = PlayerPrefs.GetInt("Coins", 0) + 500;
+                    PlayerPrefs.SetInt("Coins", totalCoins);
+                    UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+                }
+                GameManager.Instance.CurrentGameKillCount = 0;
+                UIManager.Instance.DiePopup.SetActive(true);
+                AdsManager.Instance.ShowInterstitialAdWithDelay();
+                Destroy(GameManager.Instance.currentGameEnvironment);
+                Destroy(PhotonManager.instance._playerObj);
+                Destroy(GameManager.Instance.AIPlayer);
+                UIManager.Instance.QuitConfirmationPopup.SetActive(false);
+                UIManager.Instance.GameUI.SetActive(false);
+                UIManager.Instance.MainScreen.SetActive(true);
+                GameManager.Instance.UICamera.SetActive(false);
+                GameManager.Instance.UICamera.SetActive(true);
+                GameManager.Instance.gameModeType = GameModeType.NONE;
+            }
+        }
+
+        else if (GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+        {
+            if (isAIPlayer)
+            {
+                //spawn next player
+                GameManager.Instance.CurrentGameKillCount++;
+                GameManager.Instance.SpawnNextAIPlayer();
+            }
+            else
+            {
+                int rewardedCoins = GameManager.Instance.CurrentGameKillCount * 20;
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) + rewardedCoins;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+                GameManager.Instance.CurrentGameKillCount = 0;
+                StopCoroutine(GameManager.Instance.TimerForTimerMode);
+                UIManager.Instance.TimeTextForTimerMode.gameObject.SetActive(false);
+                UIManager.Instance.DiePopup.SetActive(true);
+                AdsManager.Instance.ShowInterstitialAdWithDelay();
+                Destroy(GameManager.Instance.currentGameEnvironment);
+                Destroy(PhotonManager.instance._playerObj);
+                Destroy(GameManager.Instance.AIPlayer);
+                UIManager.Instance.QuitConfirmationPopup.SetActive(false);
+                UIManager.Instance.GameUI.SetActive(false);
+                UIManager.Instance.MainScreen.SetActive(true);
+                GameManager.Instance.UICamera.SetActive(false);
+                GameManager.Instance.UICamera.SetActive(true);
+                GameManager.Instance.gameModeType = GameModeType.NONE;
+            }
+        }
+        Destroy(gameObject);
     }
     
 
