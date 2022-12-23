@@ -78,24 +78,14 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         if (isPhotonConnected)
         {
             AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-            if (PlayerPrefs.GetInt("Coins",0) >= 500)
-            {
-                int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 500;
-                PlayerPrefs.SetInt("Coins", totalCoins);
-                UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
 
-                RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = false };
-                PhotonNetwork.CreateRoom(privateGameCode, newRoom);
-                UIManager.Instance.LoadingScreen.SetActive(true);
-            }
-            else
-            {
-                UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
-            }
+            RoomOptions newRoom = new RoomOptions() { MaxPlayers = 4, IsVisible = false };
+            PhotonNetwork.CreateRoom(privateGameCode, newRoom);
+            UIManager.Instance.LoadingScreen.SetActive(true);
         }
         else
         {
-            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.InternetConnectionErrorPanel);
         }
     }
 
@@ -117,13 +107,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
                 }
                 else
                 {
-                    UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
+                    UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel);
                 }
             }
         }
         else
         {
-            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.InternetConnectionErrorPanel);
         }
     }
 
@@ -137,7 +127,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         }
         else
         {
-            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.InternetConnectionErrorPanel);
         }
     }
 
@@ -157,12 +147,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
             }
             else
             {
-                UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel.SetActive(true);
+                UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.NotEnoughCoinsForMultiplayerErrorPanel);
             }
         }
         else
         {
-            UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.InternetConnectionErrorPanel);
         }
     }
 
@@ -194,8 +184,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         base.OnDisconnected(cause);
         Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
         isPhotonConnected = false;
-        UIManager.Instance.LoadingScreen.SetActive(false);
-        UIManager.Instance.InternetConnectionErrorPanel.SetActive(true);
+        UIManager.Instance.LoadingScreen.SetActive(false); 
+        UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.InternetConnectionErrorPanel);
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
@@ -229,7 +219,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         gameState = "InLobby";
         UIManager.Instance.LoadingScreen.SetActive(false);
         UIManager.Instance.lobbyTimer.text="";
-        UIManager.Instance.LobbyScreen.SetActive(true);
+        UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.LobbyScreen);
         if (PhotonNetwork.IsMasterClient)
         {
             playersNameList.Add(PhotonNetwork.NickName);
@@ -255,11 +245,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinRoomFailed() called by PUN. Now this client is in a room."+returnCode+message);
         if (returnCode == 32758)
         {
-            UIManager.Instance.JoinPrivateRoomFailedPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.JoinPrivateRoomFailedPanel);
         }
         if (returnCode == 32765)
         {
-            UIManager.Instance.JoinPrivateRoomFullPanel.SetActive(true);
+            UIManager.Instance.PanelOpenFadeIn(UIManager.Instance.JoinPrivateRoomFullPanel);
         }
         UIManager.Instance.LoadingScreen.SetActive(false);
     }
@@ -275,10 +265,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks, IInRoomCallbacks
         }
         if (gameState == "InLobby")
         {
-            UIManager.Instance.LobbyScreen.SetActive(false);
             UIManager.Instance.PrivateRoomScreen.SetActive(false);
             UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
             UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
+            UIManager.Instance.PanelCloseFadeOut(UIManager.Instance.LobbyScreen);
             UIManager.Instance.LoadingScreen.SetActive(true);
             if (lobbyTimerCoroutine != null)
                 StopCoroutine(lobbyTimerCoroutine);

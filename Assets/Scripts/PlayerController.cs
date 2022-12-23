@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     private float MinHealth = 0;
     private float MaxHealth = 100;
     public PhotonView view;
-    public float speedPlayer = 1;
+    public float speedPlayer = 0.65f;
     public Canvas PlayerCanvas;
     public GameObject Pillow;
     public bool hasHit = false;
@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
             {
                 isAIPlayer = true;
                 EnemeyDetectionTriggerForAI.gameObject.SetActive(true);
-                speedPlayer = 0.2f;
+                speedPlayer = 0.55f;
             }
             else
             {
@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         isAIPlayer = true;
         EnemeyDetectionTriggerForAI.gameObject.SetActive(true);
-        speedPlayer = 0.25f;
+        speedPlayer = 0.55f;
         view.OwnershipTransfer = OwnershipOption.Takeover;
     }
 
@@ -97,13 +97,19 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 GameObject currentEnemy = NearestPlayer();
                 if (currentEnemy != null)
                 {
-                    if (distanceFromNearestPlayer <= 0.5f)
+                    if (distanceFromNearestPlayer <= 0.4f)
                     {
                         if (playerState == PlayerState.IDLE || playerState == PlayerState.WALKING)
                         {
                             delayBeforeEveryAIAttack += Time.deltaTime;
-                            if(delayBeforeEveryAIAttack>2f)
-                                attack();
+                            if (delayBeforeEveryAIAttack > 1.5f)
+                            {
+                                int actionPossibility = Random.Range(0, 10);
+                                if (actionPossibility <= 5)
+                                    attack();
+                                else
+                                    block();
+                            }
                             else
                             {
                                 animator.SetBool("Walking", false);
@@ -146,6 +152,25 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                         playerState = PlayerState.IDLE;
                 }
             }
+
+            //___________________________PLAYER BOUNDARIES_____________________________
+            if (transform.position.x > 0)
+            {
+                transform.position = new Vector3(0, transform.position.y, transform.position.z);
+            }
+            if (transform.position.x < -2)
+            {
+                transform.position = new Vector3(-2, transform.position.y, transform.position.z);
+            }
+            if (transform.position.z > -0.7f)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, -0.7f);
+            }
+            if (transform.position.z < -3)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, -3);
+            }
+            //___________________________________________________________________________
         }
 
         PlayerCanvas.transform.LookAt(transform.position + GameManager.Instance.currentGameEnvironment.GetComponent<EnvironmentManager>().cam.transform.rotation * Vector3.back, GameManager.Instance.currentGameEnvironment.GetComponent<EnvironmentManager>().cam.transform.rotation * Vector3.up);
@@ -296,23 +321,23 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         Invoke("blockDoneWithDelay", 1.5f);
     }
 
-    public void Damage()
+    public void Damage(int damageAmount)
     {
         if (!hasBlock)
         {
             if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
-                view.RPC("DamageRPC", RpcTarget.All);
+                view.RPC("DamageRPC", RpcTarget.All,damageAmount);
             else if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
-                DamageRPC();
+                DamageRPC(damageAmount);
         }
     }
 
 
     [PunRPC]
-    public void DamageRPC()
+    public void DamageRPC(int damageAmount)
     {
         //hurt animation
-        Health -= 20;
+        Health -= damageAmount;
         healthText.fillAmount = Health / MaxHealth;
         if (Health <= 0)
         {
@@ -370,7 +395,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                     UIManager.Instance.UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
                 }
                 GameManager.Instance.CurrentGameKillCount = 0;
-                UIManager.Instance.DiePopup.SetActive(true);
+                UIManager.Instance.GameOverPopupForSurvivalMode.SetActive(true);
                 AdsManager.Instance.ShowInterstitialAdWithDelay();
                 Destroy(GameManager.Instance.currentGameEnvironment);
                 Destroy(PhotonManager.instance._playerObj);
@@ -401,7 +426,10 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 GameManager.Instance.CurrentGameKillCount = 0;
                 StopCoroutine(GameManager.Instance.TimerForTimerMode);
                 UIManager.Instance.TimeTextForTimerMode.gameObject.SetActive(false);
-                UIManager.Instance.DiePopup.SetActive(true);
+                GameObject adbtn = UIManager.Instance.GameOverPopupForTimerMode.transform.Find("PopUp").Find("AdButton").gameObject;
+                adbtn.GetComponent<Button>().interactable = false;
+                adbtn.GetComponentInChildren<TMPro.TMP_Text>().alpha = 0.4f;
+                UIManager.Instance.GameOverPopupForTimerMode.SetActive(true);
                 AdsManager.Instance.ShowInterstitialAdWithDelay();
                 Destroy(GameManager.Instance.currentGameEnvironment);
                 Destroy(PhotonManager.instance._playerObj);

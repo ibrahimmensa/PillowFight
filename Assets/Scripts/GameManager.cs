@@ -47,11 +47,6 @@ public class GameManager : Singleton<GameManager>
     public void StartGameTimerMode()
     {
         gameModeType = GameModeType.TIMER_MODE;
-        UIManager.Instance.LobbyScreen.SetActive(false);
-        UIManager.Instance.MultiPlayerScreen.SetActive(false);
-        UIManager.Instance.PrivateRoomScreen.SetActive(false);
-        UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
-        UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
         currentGameEnvironment = Instantiate(Environment1Prefab);
         PhotonManager.instance._playerObj = Instantiate(PlayerPrefab, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.rotation);
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().SetPlayerName(UIManager.Instance.playerNameText.text);
@@ -69,7 +64,7 @@ public class GameManager : Singleton<GameManager>
     public void TimerModeExtension()
     {
         Time.timeScale = 1;
-        UIManager.Instance.GameOverPopup.SetActive(false);
+        UIManager.Instance.GameOverPopupForTimerMode.SetActive(false);
         UIManager.Instance.TimeTextForTimerMode.text = "TIMER : 00:30";
         TimerForTimerMode = StartCoroutine(TimerForTimerModeGameplay(30,true));
     }
@@ -85,7 +80,7 @@ public class GameManager : Singleton<GameManager>
             else
                 UIManager.Instance.TimeTextForTimerMode.text = "TIMER : 00:0" + timer;
         }
-        UIManager.Instance.GameOverPopup.SetActive(true);
+        UIManager.Instance.GameOverPopupForTimerMode.SetActive(true);
         if (finalCall)
         {
             AdsManager.Instance.ShowInterstitialAdWithDelay();
@@ -118,11 +113,6 @@ public class GameManager : Singleton<GameManager>
     public void StartGameSurvivalMode()
     {
         gameModeType = GameModeType.SURVIVAL_MODE;
-        UIManager.Instance.LobbyScreen.SetActive(false);
-        UIManager.Instance.MultiPlayerScreen.SetActive(false);
-        UIManager.Instance.PrivateRoomScreen.SetActive(false);
-        UIManager.Instance.JoinPrivateRoomScreen.SetActive(false);
-        UIManager.Instance.CreatePrivateRoomScreen.SetActive(false);
         currentGameEnvironment = Instantiate(Environment1Prefab);
         PhotonManager.instance._playerObj = Instantiate(PlayerPrefab, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.rotation);
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().SetPlayerName(UIManager.Instance.playerNameText.text);

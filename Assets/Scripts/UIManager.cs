@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
 using Photon.Pun;
+using DanielLochner.Assets.SimpleScrollSnap;
 
 public static class ClipboardExtension
 {
@@ -33,23 +34,29 @@ public class UIManager : Singleton<UIManager>
     public GameObject CharacterSelectionScreen;
     public GameObject StorePillowScreen;
     public GameObject StoreCoinsScreen;
+
     public GameObject PrivateRoomScreen;
     public GameObject CreatePrivateRoomScreen;
     public GameObject JoinPrivateRoomScreen;
     public GameObject LobbyScreen;
+
     public GameObject JoinPrivateRoomFailedPanel;
     public GameObject JoinPrivateRoomFullPanel;
     public GameObject InternetConnectionErrorPanel;
     public GameObject NotEnoughCoinsForMultiplayerErrorPanel;
     public GameObject LoadingScreen;
+
     public GameObject GameUI;
     public GameObject JoyStick;
     public TMP_Text[] lobbyPlayersNames;
     public TMP_Text lobbyTimer;
+
     public GameObject QuitConfirmationPopup;
     public GameObject VictoryPopup;
     public GameObject DiePopup;
-    public GameObject GameOverPopup;
+    public GameObject GameOverPopupForTimerMode;
+    public GameObject GameOverPopupForSurvivalMode;
+
     public TMP_Text[] coinsAmountText;
     public TMP_Text TimeTextForTimerMode;
 
@@ -60,6 +67,22 @@ public class UIManager : Singleton<UIManager>
 
     public TMP_Text privateRoomCodeText;
     public TMP_InputField privateRoomCodeInputField;
+
+    public PillowDataHandler pillowDataHandler;
+    public Slider PillowPower;
+    public TMP_Text PillowGrip;
+    public TMP_Text PillowWeight;
+    public TMP_Text PillowName;
+
+    public GameObject BuyPillowWithNoAdOption;
+    public GameObject BuyPillowWithAdOption;
+    public TMP_Text PillowPriceTextIfNoAd;
+    public TMP_Text PillowPriceTextIfAd;
+    public TMP_Text PillowAdsPriceText;
+    public GameObject UpGradePillow;
+    public TMP_Text UpGradePillowText;
+    public GameObject UpGradePillowWithCoins;
+    public GameObject UpGradePillowWithAd;
 
     public TMP_Text DebugText;
 
@@ -76,6 +99,8 @@ public class UIManager : Singleton<UIManager>
             playerNameText.text = PlayerPrefs.GetString("PlayerName");
         }
     }
+
+    #region ______________________NAME/COINS_UPDATE_FUNCTIONS_____________________
 
     public void SetNewName(TMP_InputField newPlayerNameText)
     {
@@ -97,59 +122,64 @@ public class UIManager : Singleton<UIManager>
             coinsAmountText[i].text = coins.ToString();
     }
 
-    public void PanelFadeIn(CanvasGroup canvasGroup, RectTransform recttransform)
+    #endregion
+
+    #region _________________PANEL_OPEN/CLOSE_ANIMATION_FUNCTIONS_________________
+
+    public void PanelOpenFadeIn(GameObject Panel)
     {
+        CanvasGroup canvasGroup = Panel.GetComponent<CanvasGroup>();
+        RectTransform recttransform = Panel.GetComponent<RectTransform>();
         Debug.Log("Working");
         canvasGroup.alpha = 0f;
         recttransform.transform.localPosition = new Vector3(0f, -1000f, 0f);
         recttransform.DOAnchorPos(new Vector2(0f, 0f), fadeTime, false).SetEase(Ease.OutElastic);
         canvasGroup.DOFade(1, fadeTime);
+        Panel.SetActive(true);
     }
-    public void PanelFadeOut(CanvasGroup canvasGroup, RectTransform recttransform)
+    public void PanelCloseFadeOut(GameObject Panel)
     {
+        CanvasGroup canvasGroup = Panel.GetComponent<CanvasGroup>();
+        RectTransform recttransform = Panel.GetComponent<RectTransform>();
         canvasGroup.alpha = 1f;
         recttransform.transform.localPosition = new Vector3(0f, 0f, 0f);
         recttransform.DOAnchorPos(new Vector2(0f, -1000f), fadeTime, false).SetEase(Ease.InOutQuint);
         canvasGroup.DOFade(0, fadeTime);
+        StartCoroutine(ClosePanelAfterDelay(Panel));
     }
+
+    IEnumerator ClosePanelAfterDelay(GameObject Panel)
+    {
+        yield return new WaitForSeconds(0.6f);
+        Panel.SetActive(false);
+    }
+
+    #endregion
+
+    #region ________________________MAIN_SCREEN_UI_CONTROLLS______________________
 
     public void OnClickSettingsButton()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(SettingsScreen.GetComponent<CanvasGroup>(),SettingsScreen.GetComponent<RectTransform>());
-        SettingsScreen.SetActive(true);
+        PanelOpenFadeIn(SettingsScreen);
     }
 
     public void onClickCloseSettings()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(SettingsScreen.GetComponent<CanvasGroup>(), SettingsScreen.GetComponent<RectTransform>());
-        Invoke("CloseSettingsScreenAfterDelay", 1);
+        PanelCloseFadeOut(SettingsScreen);
     }
-
-    void CloseSettingsScreenAfterDelay()
-    {
-        SettingsScreen.SetActive(false);
-    }
-
 
     public void OnClickProfileButton()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(ProfileScreen.GetComponent<CanvasGroup>(), ProfileScreen.GetComponent<RectTransform>());
-        ProfileScreen.SetActive(true);
+        PanelOpenFadeIn(ProfileScreen);
     }
 
     public void onClickCloseProfile()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(ProfileScreen.GetComponent<CanvasGroup>(), ProfileScreen.GetComponent<RectTransform>());
-        Invoke("CloseProfileScreenAfterDelay", 1);
-    }
-
-    void CloseProfileScreenAfterDelay()
-    {
-        ProfileScreen.SetActive(false);
+        PanelCloseFadeOut(ProfileScreen);
     }
 
 
@@ -157,80 +187,58 @@ public class UIManager : Singleton<UIManager>
     {
         FirebaseManager.Instance.onClickLeaderboardButton();
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(LeaderBoardScreen.GetComponent<CanvasGroup>(), LeaderBoardScreen.GetComponent<RectTransform>());
-        LeaderBoardScreen.SetActive(true);
+        PanelOpenFadeIn(LeaderBoardScreen);
     }
 
     public void onClickCloseLeaderBoard()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(LeaderBoardScreen.GetComponent<CanvasGroup>(), LeaderBoardScreen.GetComponent<RectTransform>());
-        Invoke("CloseLeaderBoardScreenAfterDelay", 1);
-    }
-
-    void CloseLeaderBoardScreenAfterDelay()
-    {
-        LeaderBoardScreen.SetActive(false);
+        PanelCloseFadeOut(LeaderBoardScreen);
     }
 
 
     public void OnClickMultiPlayerButton()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(MultiPlayerScreen.GetComponent<CanvasGroup>(), MultiPlayerScreen.GetComponent<RectTransform>());
-        MultiPlayerScreen.SetActive(true);
+        PanelOpenFadeIn(MultiPlayerScreen);
     }
 
     public void onClickCloseMultiPlayer()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(MultiPlayerScreen.GetComponent<CanvasGroup>(), MultiPlayerScreen.GetComponent<RectTransform>());
-        Invoke("CloseMultiPlayerScreenAfterDelay", 1);
+        PanelCloseFadeOut(MultiPlayerScreen);
     }
 
-    void CloseMultiPlayerScreenAfterDelay()
-    {
-        MultiPlayerScreen.SetActive(false);
-    }
-
-    public void OnClickStoreButton()
+    public void OnClickStoreButton(SimpleScrollSnap scrollView)
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(StoreScreen.GetComponent<CanvasGroup>(), StoreScreen.GetComponent<RectTransform>());
-        StoreScreen.SetActive(true);
+        int i = PlayerPrefs.GetInt("SelectedPillow", 0);
+        scrollView.GoToPanel(i);
+        PanelOpenFadeIn(StoreScreen);
     }
 
     public void onClickCloseStore()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(StoreScreen.GetComponent<CanvasGroup>(), StoreScreen.GetComponent<RectTransform>());
-        Invoke("CloseStoreScreenAfterDelay", 1);
-    }
-
-    void CloseStoreScreenAfterDelay()
-    {
-        StoreScreen.SetActive(false);
+        PanelCloseFadeOut(StoreScreen);
     }
 
 
     public void OnClickCharacterSelectionButton()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeIn(CharacterSelectionScreen.GetComponent<CanvasGroup>(), CharacterSelectionScreen.GetComponent<RectTransform>());
-        CharacterSelectionScreen.SetActive(true);
+        PanelOpenFadeIn(CharacterSelectionScreen);
     }
 
     public void onClickCloseCharacterSelection()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PanelFadeOut(CharacterSelectionScreen.GetComponent<CanvasGroup>(), CharacterSelectionScreen.GetComponent<RectTransform>());
-        Invoke("CloseCharacterSelectionScreenAfterDelay", 1);
+        PanelCloseFadeOut(CharacterSelectionScreen);
     }
 
-    void CloseCharacterSelectionScreenAfterDelay()
-    {
-        CharacterSelectionScreen.SetActive(false);
-    }
+    #endregion
+
+    #region ____________________________STORE_CONTROLLS___________________________
 
     public void onClickPillowInStore()
     {
@@ -246,16 +254,95 @@ public class UIManager : Singleton<UIManager>
         StoreCoinsScreen.SetActive(true);
     }
 
+    public void onPillowSelected(SimpleScrollSnap scrollView)
+    {
+        BuyPillowWithAdOption.SetActive(false);
+        BuyPillowWithNoAdOption.SetActive(false);
+        UpGradePillow.SetActive(false);
+        UpGradePillowWithCoins.SetActive(false);
+        UpGradePillowWithAd.SetActive(false);
+
+        if (scrollView.CenteredPanel == 0)
+        {
+            UpGradePillow.SetActive(true);
+            int upgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
+            PillowName.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Material;
+            PillowGrip.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Grip.ToString() + "%";
+            PillowWeight.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Weight.ToString() + " grams";
+            PillowPower.value = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Power;
+
+            UpGradePillowText.text = "Upgrade: " + upgradeLevel + " / 6";
+
+            if (upgradeLevel < 3)
+            {
+                UpGradePillowWithCoins.SetActive(true);
+            }
+            else if (upgradeLevel >= 3 && upgradeLevel < 6)
+            {
+                UpGradePillowWithAd.SetActive(true);
+            }
+        }
+        else
+        {
+            if(PlayerPrefs.GetInt("Pillow" + scrollView.CenteredPanel, 0) == 0)
+            {
+                //buy
+                PillowName.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Material;
+                PillowGrip.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[0].Grip.ToString() + "%";
+                PillowWeight.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[0].Weight.ToString() + " grams";
+                PillowPower.value = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[0].Power;
+
+                if (pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInAds == 0)
+                {
+                    BuyPillowWithNoAdOption.SetActive(true);
+                    PillowPriceTextIfNoAd.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInCoins.ToString();
+                }
+                else
+                {
+                    BuyPillowWithAdOption.SetActive(true);
+                    PillowPriceTextIfAd.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInCoins.ToString();
+                    int AdsWatched = PlayerPrefs.GetInt("AdsWatchedForPillow" + scrollView.CenteredPanel, 0);
+                    PillowAdsPriceText.text = AdsWatched + "/" + pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInAds.ToString();
+                }
+            }
+            else
+            {
+                //upgrade
+                UpGradePillow.SetActive(true);
+                int upgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
+                PillowName.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Material;
+                PillowGrip.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Grip.ToString() + "%";
+                PillowWeight.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Weight.ToString() + " grams";
+                PillowPower.value = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Power;
+
+                UpGradePillowText.text = "Upgrade: " + upgradeLevel + " / 6";
+
+                if (upgradeLevel < 3)
+                {
+                    UpGradePillowWithCoins.SetActive(true);
+                }
+                else if (upgradeLevel >= 3 && upgradeLevel < 6)
+                {
+                    UpGradePillowWithAd.SetActive(true);
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    #region ________________________MULTIPLAYER_UI_CONTROLLS______________________
+
     public void onClickPrivateRoom()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PrivateRoomScreen.SetActive(true);
+        PanelOpenFadeIn(PrivateRoomScreen);
     }
 
     public void onClickClosePrivateRoom()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        PrivateRoomScreen.SetActive(false);
+        PanelCloseFadeOut(PrivateRoomScreen);
     }
 
     public void onClickCreatePrivateRoom()
@@ -263,20 +350,31 @@ public class UIManager : Singleton<UIManager>
         if (PhotonManager.instance.isPhotonConnected)
         {
             AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-            CreatePrivateRoomScreen.SetActive(true);
-            PhotonManager.instance.RandomRoomCode();
-            privateRoomCodeText.text = PhotonManager.instance.privateGameCode;
+            if (PlayerPrefs.GetInt("Coins", 0) >= 500)
+            {
+                int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 500;
+                PlayerPrefs.SetInt("Coins", totalCoins);
+                UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+                PanelOpenFadeIn(CreatePrivateRoomScreen);
+                PhotonManager.instance.RandomRoomCode();
+                privateRoomCodeText.text = PhotonManager.instance.privateGameCode;
+            }
+            else
+            {
+                PanelOpenFadeIn(NotEnoughCoinsForMultiplayerErrorPanel);
+            }
         }
         else
         {
-            InternetConnectionErrorPanel.SetActive(true);
+           PanelOpenFadeIn(InternetConnectionErrorPanel);
         }
     }
 
     public void onClickCloseCreatePrivateRoom(TMP_Text buttonText)
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        CreatePrivateRoomScreen.SetActive(false);
+        PanelCloseFadeOut(CreatePrivateRoomScreen);
         privateRoomCodeText.text = "";
         buttonText.text = "COPY CODE";
     }
@@ -284,14 +382,14 @@ public class UIManager : Singleton<UIManager>
     public void onClickJoinPrivateRoom()
     {
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        JoinPrivateRoomScreen.SetActive(true);
+        PanelOpenFadeIn(JoinPrivateRoomScreen);
     }
 
     public void onClickCloseJoinPrivateRoom()
     {
         privateRoomCodeInputField.text = "";
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
-        JoinPrivateRoomScreen.SetActive(false);
+        PanelCloseFadeOut(JoinPrivateRoomScreen);
     }
 
     public void onClickCopyCode(TMP_Text buttonText)
@@ -308,6 +406,10 @@ public class UIManager : Singleton<UIManager>
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.LeaveLobby();
     }
+
+    #endregion
+
+    #region _______________________SOUND_CONTROLLS_+_SETTINGS_____________________
 
     public void onClickBGMusicToogle(bool toogle)
     {
@@ -338,6 +440,15 @@ public class UIManager : Singleton<UIManager>
         }
         AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
     }
+
+    public void onClickPrivacyPolicy()
+    {
+        Application.OpenURL("https://mensaplay.com/wensa/privacy-policy.html");
+    }
+
+    #endregion
+
+    #region _________________________GAMEPLAY_UI_CONTROLLS________________________
 
     public void onClickAttack()
     {
@@ -408,4 +519,7 @@ public class UIManager : Singleton<UIManager>
             Time.timeScale = 1;
         }
     }
+
+    #endregion
+
 }
