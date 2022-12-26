@@ -7,12 +7,29 @@ public class PillowController : MonoBehaviour
 {
     public PlayerController player;
 
-    public int DamagePower = 20;
+    public int power;
+    public int grip;
+    public int weight;
+
+    public int DamagePower = 0;
 
     // Start is called before the first frame update
     void Start()
     {
+        int pillowNumber = PlayerPrefs.GetInt("SelectedPillow" , 0);
+        int upgradeLevel= PlayerPrefs.GetInt("UpgradeLevelPillow" + pillowNumber, 0);
         
+        power = UIManager.Instance.pillowDataHandler.TotalPillows[pillowNumber].Upgrades[upgradeLevel].Power;
+        grip = UIManager.Instance.pillowDataHandler.TotalPillows[pillowNumber].Upgrades[upgradeLevel].Grip;
+        weight = UIManager.Instance.pillowDataHandler.TotalPillows[pillowNumber].Upgrades[upgradeLevel].Weight;
+        if (GameManager.Instance.gameModeType == GameModeType.SURVIVAL_MODE || GameManager.Instance.gameModeType == GameModeType.TIMER_MODE)
+        {
+            DamagePower = power + (grip / 20) + (weight / 100);
+        }
+        else if(GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
+        {
+            DamagePower = (power/2) + (grip / 20) + (weight / 200);
+        }
     }
 
     // Update is called once per frame

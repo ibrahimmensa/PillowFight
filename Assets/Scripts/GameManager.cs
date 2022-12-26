@@ -51,6 +51,7 @@ public class GameManager : Singleton<GameManager>
         PhotonManager.instance._playerObj = Instantiate(PlayerPrefab, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.rotation);
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().SetPlayerName(UIManager.Instance.playerNameText.text);
         UIManager.Instance.MainScreen.SetActive(false);
+        UIManager.Instance.EmojiButton.SetActive(false);
         UIManager.Instance.GameUI.SetActive(true);
         UICamera.SetActive(false);
         UICamera.SetActive(true);
@@ -117,6 +118,7 @@ public class GameManager : Singleton<GameManager>
         PhotonManager.instance._playerObj = Instantiate(PlayerPrefab, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[0].transform.rotation);
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().SetPlayerName(UIManager.Instance.playerNameText.text);
         UIManager.Instance.MainScreen.SetActive(false);
+        UIManager.Instance.EmojiButton.SetActive(false);
         UIManager.Instance.GameUI.SetActive(true);
         UICamera.SetActive(false);
         UICamera.SetActive(true);
@@ -150,6 +152,8 @@ public class GameManager : Singleton<GameManager>
         PhotonManager.instance._playerObj = PhotonNetwork.Instantiate("Player", currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[index].transform.position, currentGameEnvironment.GetComponent<EnvironmentManager>().playerSpawnPoints[index].transform.rotation, 0);
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().SetPlayerName(PhotonNetwork.NickName);
         UIManager.Instance.MainScreen.SetActive(false);
+        UIManager.Instance.EmojiButton.SetActive(true);
+        UIManager.Instance.EmojiPanel.SetActive(false);
         UIManager.Instance.GameUI.SetActive(true);
         UICamera.SetActive(false);
         UICamera.SetActive(true);

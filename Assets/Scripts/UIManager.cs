@@ -48,6 +48,8 @@ public class UIManager : Singleton<UIManager>
 
     public GameObject GameUI;
     public GameObject JoyStick;
+    public GameObject EmojiPanel;
+    public GameObject EmojiButton;
     public TMP_Text[] lobbyPlayersNames;
     public TMP_Text lobbyTimer;
 
@@ -264,6 +266,7 @@ public class UIManager : Singleton<UIManager>
 
         if (scrollView.CenteredPanel == 0)
         {
+            PlayerPrefs.SetInt("SelectedPillow", scrollView.CenteredPanel);
             UpGradePillow.SetActive(true);
             int upgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
             PillowName.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Material;
@@ -271,7 +274,7 @@ public class UIManager : Singleton<UIManager>
             PillowWeight.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Weight.ToString() + " grams";
             PillowPower.value = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Power;
 
-            UpGradePillowText.text = "Upgrade: " + upgradeLevel + " / 6";
+            UpGradePillowText.text = "Upgrades: " + upgradeLevel + " / 6";
 
             if (upgradeLevel < 3)
             {
@@ -308,6 +311,7 @@ public class UIManager : Singleton<UIManager>
             else
             {
                 //upgrade
+                PlayerPrefs.SetInt("SelectedPillow", scrollView.CenteredPanel);
                 UpGradePillow.SetActive(true);
                 int upgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
                 PillowName.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Material;
@@ -315,7 +319,7 @@ public class UIManager : Singleton<UIManager>
                 PillowWeight.text = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Weight.ToString() + " grams";
                 PillowPower.value = pillowDataHandler.TotalPillows[scrollView.CenteredPanel].Upgrades[upgradeLevel].Power;
 
-                UpGradePillowText.text = "Upgrade: " + upgradeLevel + " / 6";
+                UpGradePillowText.text = "Upgrades: " + upgradeLevel + " / 6";
 
                 if (upgradeLevel < 3)
                 {
@@ -327,6 +331,53 @@ public class UIManager : Singleton<UIManager>
                 }
             }
         }
+    }
+
+    public void OnClickBuyWithCoins(SimpleScrollSnap scrollView)
+    {
+        if (PlayerPrefs.GetInt("Coins", 0) >= pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInCoins)
+        {
+            int totalCoins = PlayerPrefs.GetInt("Coins", 0) - pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInCoins;
+            PlayerPrefs.SetInt("Coins", totalCoins);
+            UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+            PlayerPrefs.SetInt("Pillow" + scrollView.CenteredPanel, 1);
+            onPillowSelected(scrollView);
+        }
+    }
+
+    public void OnClickBuyWithAds(SimpleScrollSnap scrollView)
+    {
+        int AdsWatched = PlayerPrefs.GetInt("AdsWatchedForPillow" + scrollView.CenteredPanel, 0)+1;
+        PlayerPrefs.SetInt("AdsWatchedForPillow" + scrollView.CenteredPanel, AdsWatched);
+        if(AdsWatched== pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInAds)
+        {
+            PlayerPrefs.SetInt("Pillow" + scrollView.CenteredPanel, 1);
+            onPillowSelected(scrollView);
+        }
+        else
+            PillowAdsPriceText.text = AdsWatched + "/" + pillowDataHandler.TotalPillows[scrollView.CenteredPanel].priceInAds.ToString();
+    }
+
+    public void OnClickUpgradeWithCoins(SimpleScrollSnap scrollView)
+    {
+        if (PlayerPrefs.GetInt("Coins", 0) >= 250)
+        {
+            int totalCoins = PlayerPrefs.GetInt("Coins", 0) - 250;
+            PlayerPrefs.SetInt("Coins", totalCoins);
+            UpdateCoinsStatus(PlayerPrefs.GetInt("Coins"));
+
+            int currentUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
+            PlayerPrefs.SetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, currentUpgradeLevel + 1);
+            onPillowSelected(scrollView);
+        }
+    }
+
+    public void OnClickUpgradeWithAds(SimpleScrollSnap scrollView)
+    {
+        int currentUpgradeLevel = PlayerPrefs.GetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, 0);
+        PlayerPrefs.SetInt("UpgradeLevelPillow" + scrollView.CenteredPanel, currentUpgradeLevel + 1);
+        onPillowSelected(scrollView);
     }
 
     #endregion
@@ -458,6 +509,20 @@ public class UIManager : Singleton<UIManager>
     public void onClickBlock()
     {
         PhotonManager.instance._playerObj.GetComponent<PlayerController>().block();
+    }
+
+    public void onClickEmojiButton()
+    {
+        AudioManager.Instance.Play(SoundEffect.BUTTONCLICK);
+        if (EmojiPanel.activeSelf)
+            EmojiPanel.SetActive(false);
+        else
+            EmojiPanel.SetActive(true);
+    }
+
+    public void onClickEmojiChat(int emojiNumber)
+    {
+        PhotonManager.instance._playerObj.GetComponent<PlayerController>().React(emojiNumber);
     }
 
     public void onClickQuitGame()

@@ -20,14 +20,16 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 {
     public string PlayerName="";
     public bool isAIPlayer=false;
-    public Image healthText;
+    public Image healthBar;
+    public Sprite criticalHealthBar;
+    public Image healthBarBG;
+    public Sprite myHealthBarBG;
     [SerializeField]
     private Joystick Joystick;
     [SerializeField]
     public Rigidbody rb;
     public Animator animator;
     public float Health = 100;
-    private float MinHealth = 0;
     private float MaxHealth = 100;
     public PhotonView view;
     public float speedPlayer = 0.65f;
@@ -38,6 +40,9 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     public EnemyDetector EnemeyDetectionTriggerForAI;
     float distanceFromNearestPlayer = 10000;
     float delayBeforeEveryAIAttack = 0;
+    public Image Emoji;
+    public Sprite[] Emojis;
+    Coroutine reactCoroutine;
 
     public PlayerState playerState = PlayerState.IDLE;
 
@@ -60,6 +65,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 else
                 {
                     Joystick = UIManager.Instance.JoyStick.GetComponent<FixedJoystick>();
+                    healthBarBG.sprite = myHealthBarBG;
                 }
             }
         }
@@ -75,6 +81,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
             else
             {
                 Joystick = UIManager.Instance.JoyStick.GetComponent<FixedJoystick>();
+                healthBarBG.sprite = myHealthBarBG;
             }
         }
     }
@@ -221,6 +228,31 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         return nearestPlayer;
     }
 
+    public void React(int reactType)
+    {
+        if (view.IsMine)
+        {
+            view.RPC("ReactRPC", RpcTarget.All,reactType);
+        }
+    }
+
+    [PunRPC]
+    void ReactRPC(int reactType)
+    {
+        Emoji.sprite = Emojis[reactType];
+        Emoji.gameObject.SetActive(true);
+        if (reactCoroutine != null)
+            StopCoroutine(reactCoroutine);
+        reactCoroutine = StartCoroutine(ReactDone());
+    }
+
+    IEnumerator ReactDone()
+    {
+        yield return new WaitForSeconds(2);
+        Emoji.gameObject.SetActive(false);
+        Emoji.sprite = null;
+    }
+
     public void attack()
     {
         if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
@@ -232,7 +264,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                     view.RPC("attackCall", RpcTarget.All);
                     animator.SetBool("Walking", false);
                     animator.SetTrigger("Attack");
-                    view.RPC("attackDoneCall", RpcTarget.All);
                 }
             }
         }
@@ -243,7 +274,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 attackCall();
                 animator.SetBool("Walking", false);
                 animator.SetTrigger("Attack");
-                attackDoneCall();
             }
         }
     }
@@ -254,7 +284,8 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         playerState = PlayerState.ATTACK;
         delayBeforeEveryAIAttack = 0;
         hasHit = false;
-        Invoke("attackWithDelay", 0.5f);
+        Invoke("attackWithDelay", 0.5f); 
+        Invoke("attackDoneWithDelay", 1.5f);
     }
 
     void attackWithDelay()
@@ -269,12 +300,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         playerState = PlayerState.IDLE;
     }
 
-    [PunRPC]
-    public void attackDoneCall()
-    {
-        Invoke("attackDoneWithDelay", 1.5f);
-    }
-
     public void block()
     {
         if (GameManager.Instance.gameModeType == GameModeType.MULTIPLAYER)
@@ -286,7 +311,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                     view.RPC("blockCall", RpcTarget.All);
                     animator.SetBool("Walking", false);
                     //animator.SetTrigger("Block");
-                    view.RPC("blockDoneCall", RpcTarget.All);
                 }
             }
         }
@@ -297,7 +321,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
                 blockCall();
                 animator.SetBool("Walking", false);
                 //animator.SetTrigger("Block");
-                blockDoneCall();
             }
         }
     }
@@ -307,18 +330,13 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         hasBlock = true;
         playerState = PlayerState.BLOCK;
+        Invoke("blockDoneWithDelay", 1.5f);
     }
 
     void blockDoneWithDelay()
     {
         hasBlock = false;
         playerState = PlayerState.IDLE;
-    }
-
-    [PunRPC]
-    public void blockDoneCall()
-    {
-        Invoke("blockDoneWithDelay", 1.5f);
     }
 
     public void Damage(int damageAmount)
@@ -338,7 +356,9 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         //hurt animation
         Health -= damageAmount;
-        healthText.fillAmount = Health / MaxHealth;
+        healthBar.fillAmount = Health / MaxHealth;
+        if (Health <= 25)
+            healthBar.sprite = criticalHealthBar;
         if (Health <= 0)
         {
             die();

@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
+using DanielLochner.Assets.SimpleScrollSnap;
 
 public enum RewardType
 {
     DOUBLE_REWARD,
     FREE_COINS,
-    TIMER_MODE_EXTENSION
+    TIMER_MODE_EXTENSION,
+    PILLOW_PURCHASING,
+    PILLOW_UPGRADING
 }
 
 public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener, IUnityAdsLoadListener,IUnityAdsShowListener
@@ -31,6 +34,8 @@ public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener,
     public bool testMode = true;
 
     public RewardType rewardType;
+
+    SimpleScrollSnap pillowScrollView;
 
     private void Awake()
     {
@@ -101,6 +106,20 @@ public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener,
         Advertisement.Show(rewardedAdId, this);
     }
 
+    public void ShowRewardedAdToBuyPillow(SimpleScrollSnap scrollView)
+    {
+        rewardType = RewardType.PILLOW_PURCHASING;
+        pillowScrollView = scrollView;
+        Advertisement.Show(rewardedAdId, this);
+    }
+
+    public void ShowRewardedAdToUpgradePillow(SimpleScrollSnap scrollView)
+    {
+        rewardType = RewardType.PILLOW_UPGRADING;
+        pillowScrollView = scrollView;
+        Advertisement.Show(rewardedAdId, this);
+    }
+
     public void OnUnityAdsAdLoaded(string placementId)
     {
         Debug.Log("OnUnityAdsAdLoaded"); 
@@ -154,6 +173,14 @@ public class AdsManager : Singleton<AdsManager>,IUnityAdsInitializationListener,
             else if (rewardType == RewardType.TIMER_MODE_EXTENSION)
             {
                 GameManager.Instance.TimerModeExtension();
+            }
+            else if (rewardType == RewardType.PILLOW_PURCHASING)
+            {
+                UIManager.Instance.OnClickBuyWithAds(pillowScrollView);
+            }
+            else if (rewardType == RewardType.PILLOW_UPGRADING)
+            {
+                UIManager.Instance.OnClickUpgradeWithAds(pillowScrollView);
             }
         }
         Advertisement.Banner.Show(bannerAdId);
